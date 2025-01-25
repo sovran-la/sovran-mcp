@@ -8,6 +8,7 @@ use std::sync::{atomic::{AtomicU64, Ordering}, Arc, Mutex};
 use std::thread::{self, JoinHandle};
 use url::Url;
 use crate::commands::{CallTool, GetPrompt, Initialize, ListPrompts, ListResources, ListTools, McpCommand, ReadResource, Subscribe, Unsubscribe};
+use tracing::{debug, info, warn};
 
 pub struct Client<T: TransportControl + 'static> {
     transport: Arc<T>,
@@ -56,7 +57,7 @@ impl<T: TransportControl + 'static> Client<T> {
             while !stop_flag.load(Ordering::SeqCst) {
                 match transport.receive() {
                     Ok(message) => {
-                        println!("Received message: {:?}", message);
+                        debug!("Received message: {:?}", message);
                         match message {
                             JsonRpcMessage::Response(response) => {
                                 let mut pending = pending_requests.lock().unwrap();
@@ -631,5 +632,101 @@ mod tests {
         assert!(result.is_err());
 
         Ok(())
+    }
+
+    #[test]
+    fn test_resource_subscription() -> Result<()> {
+        // Initialize with debug level
+        tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::DEBUG)
+            .init();
+
+        info!("Starting subscription test");
+
+        // Create a basic sampling handler that just returns canned responses
+        let sampling_handler = Box::new(TestSamplingHandler {});
+        debug!("Creating client...");
+        let mut client = Client::new(
+            ClientStdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
+            Some(sampling_handler)
+        );
+
+        debug!("Starting client...");
+        client.start()?;
+        info!("Client started");
+
+        // First verify the server supports subscriptions
+        assert!(client.supports_resource_subscription(),
+                "Server should support resource subscriptions");
+        debug!("Subscription support verified");
+
+        // Get a resource to subscribe to (let's use #1 since it's odd/binary)
+        debug!("Listing resources...");
+        let resources = client.list_resources()?;
+        let test_resource = resources.resources.iter()
+            .find(|r| r.uri.as_str().ends_with("/1"))
+            .expect("Resource #1 should exist");
+        info!("Found test resource: {}", test_resource.uri);
+
+        // Subscribe to the resource
+        info!("Subscribing to resource...");
+        let sub_result = client.subscribe(&test_resource.uri)?;
+        debug!("Subscription complete");
+
+        // Get initial content
+        debug!("Reading initial content...");
+        let initial_content = client.read_resource(&test_resource.uri)?;
+        debug!("Initial content read");
+
+        // Give the server a moment to potentially send an update
+        info!("Waiting for update...");
+        std::thread::sleep(std::time::Duration::from_secs(6));
+        debug!("Wait complete");
+
+        // Read again - content should have changed
+        debug!("Reading updated content...");
+        let updated_content = client.read_resource(&test_resource.uri)?;
+        debug!("Updated content read");
+
+        // Compare contents - they should be different after 5 seconds
+        match (&initial_content.contents[0], &updated_content.contents[0]) {
+            (ResourceContent::Blob(initial), ResourceContent::Blob(updated)) => {
+                debug!("Comparing content...");
+                assert_ne!(initial.blob, updated.blob,
+                           "Content should have changed after update");
+                debug!("Content comparison complete");
+            },
+            _ => panic!("Expected blob content for resource #1"),
+        }
+
+        // Unsubscribe
+        info!("Unsubscribing...");
+        let unsub_result = client.unsubscribe(&test_resource.uri)?;
+        debug!("Unsubscribe complete");
+
+        debug!("Stopping client...");
+        client.stop()?;
+        info!("Test complete");
+        Ok(())
+    }
+
+    struct TestSamplingHandler;
+
+    impl SamplingHandler for TestSamplingHandler {
+        fn handle_message(&self, request: CreateMessageRequest) -> Result<CreateMessageResponse> {
+            debug!(?request, "Sampling handler called");
+            // Return a canned response
+            let response = CreateMessageResponse {
+                content: MessageContent::Text(TextContent {
+                    text: "Subscription noted.".to_string()
+                }),
+                model: "test-model".to_string(),
+                role: Role::Assistant,
+                stop_reason: None,
+                meta: None,
+            };
+            debug!(?response, "Sampling handler returning response");
+            Ok(response)
+        }
     }
 }
