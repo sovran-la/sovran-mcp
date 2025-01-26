@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use url::Url;
+use anyhow::Result;
 
 pub const LATEST_PROTOCOL_VERSION: &str = "2024-11-05";
 
@@ -410,8 +411,12 @@ pub enum ErrorCode {
 }
 
 // Helper trait for handling sampling
-pub trait SamplingHandler {
-    fn handle_message(&self, request: CreateMessageRequest) -> Result<CreateMessageResponse, anyhow::Error>;
+pub trait SamplingHandler: Send + Sync {
+    fn handle_message(&self, request: CreateMessageRequest) -> Result<CreateMessageResponse>;
+}
+
+pub trait NotificationHandler: Send + Sync {
+    fn handle_resource_update(&self, uri: &Url) -> Result<()>;
 }
 
 impl PromptContent {
