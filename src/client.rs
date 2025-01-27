@@ -1,15 +1,21 @@
-use crate::transport::{JsonRpcMessage, JsonRpcRequest, JsonRpcResponse, Transport};
+use crate::commands::{
+    CallTool, GetPrompt, Initialize, ListPrompts, ListResources, ListTools, McpCommand,
+    ReadResource, Subscribe, Unsubscribe,
+};
 use crate::messaging::MessageHandler;
+use crate::transport::{JsonRpcMessage, JsonRpcRequest, JsonRpcResponse, Transport};
 use crate::types::*;
+use crate::McpError;
 use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{channel, Sender};
-use std::sync::{atomic::{AtomicU64, Ordering}, Arc, Mutex};
+use std::sync::{
+    atomic::{AtomicU64, Ordering},
+    Arc, Mutex,
+};
 use std::thread::{self, JoinHandle};
-use url::Url;
-use crate::commands::{CallTool, GetPrompt, Initialize, ListPrompts, ListResources, ListTools, McpCommand, ReadResource, Subscribe, Unsubscribe};
 use tracing::{debug, warn};
-use crate::McpError;
+use url::Url;
 
 pub struct Client<T: Transport + 'static> {
     transport: Arc<T>,
@@ -32,9 +38,10 @@ impl<T: Transport + 'static> Drop for Client<T> {
 }
 
 impl<T: Transport + 'static> Client<T> {
-    pub fn new(transport: T,
-               sampling_handler: Option<Box<dyn SamplingHandler + Send>>,
-               notification_handler: Option<Box<dyn NotificationHandler + Send>>
+    pub fn new(
+        transport: T,
+        sampling_handler: Option<Box<dyn SamplingHandler + Send>>,
+        notification_handler: Option<Box<dyn NotificationHandler + Send>>,
     ) -> Self {
         Self {
             transport: Arc::new(transport),
@@ -70,7 +77,7 @@ impl<T: Transport + 'static> Client<T> {
                         if let Err(e) = handler.handle_message(message) {
                             warn!("Error handling message: {}", e);
                         }
-                    },
+                    }
                     Err(e) => {
                         warn!("Transport error: {}", e);
                         break;
@@ -108,7 +115,11 @@ impl<T: Transport + 'static> Client<T> {
         Ok(())
     }
 
-    fn request(&self, method: &str, params: Option<serde_json::Value>) -> Result<JsonRpcResponse, McpError> {
+    fn request(
+        &self,
+        method: &str,
+        params: Option<serde_json::Value>,
+    ) -> Result<JsonRpcResponse, McpError> {
         let id = self.request_id.fetch_add(1, Ordering::SeqCst);
         debug!("Setting up pending request id: {}", id);
         let (tx, rx) = channel();
@@ -117,7 +128,10 @@ impl<T: Transport + 'static> Client<T> {
         {
             let mut pending = self.pending_requests.lock().unwrap();
             pending.insert(id, tx);
-            debug!("Added pending request. Current IDs: {:?}", pending.keys().collect::<Vec<_>>());
+            debug!(
+                "Added pending request. Current IDs: {:?}",
+                pending.keys().collect::<Vec<_>>()
+            );
         }
 
         // Send the request
@@ -140,20 +154,16 @@ impl<T: Transport + 'static> Client<T> {
                 pending.remove(&id);
                 Err(McpError::RequestTimeout {
                     method: method.into(), // Store method name
-                    source: e             // Store underlying error
+                    source: e,             // Store underlying error
                 })
             }
         }
     }
 
-
     pub fn execute<C: McpCommand>(&self, request: C::Request) -> Result<C::Response, McpError> {
-        debug!("Executing command: {}", C::COMMAND);  // Add this
-        let response = self.request(
-            C::COMMAND,
-            Some(serde_json::to_value(request)?)
-        )?;
-        debug!("Got response for: {}", C::COMMAND);   // Add this
+        debug!("Executing command: {}", C::COMMAND); // Add this
+        let response = self.request(C::COMMAND, Some(serde_json::to_value(request)?))?;
+        debug!("Got response for: {}", C::COMMAND); // Add this
 
         if let Some(error) = response.error {
             return Err(McpError::CommandFailed {
@@ -162,8 +172,7 @@ impl<T: Transport + 'static> Client<T> {
             });
         }
 
-        let result = response.result
-            .ok_or_else(|| McpError::MissingResult)?;
+        let result = response.result.ok_or_else(|| McpError::MissingResult)?;
 
         Ok(serde_json::from_value(result)?)
     }
@@ -206,7 +215,7 @@ impl<T: Transport + 'static> Client<T> {
 
     pub fn has_capability<F>(&self, check: F) -> bool
     where
-        F: FnOnce(&ServerCapabilities) -> bool
+        F: FnOnce(&ServerCapabilities) -> bool,
     {
         self.server_info
             .lock()
@@ -280,7 +289,11 @@ impl<T: Transport + 'static> Client<T> {
         self.execute::<ListTools>(request)
     }
 
-    pub fn call_tool(&self, name: String, arguments: Option<serde_json::Value>) -> Result<CallToolResponse, McpError> {
+    pub fn call_tool(
+        &self,
+        name: String,
+        arguments: Option<serde_json::Value>,
+    ) -> Result<CallToolResponse, McpError> {
         if !self.supports_tools() {
             return Err(McpError::UnsupportedCapability("tools"));
         }
@@ -303,7 +316,11 @@ impl<T: Transport + 'static> Client<T> {
         self.execute::<ListPrompts>(request)
     }
 
-    pub fn get_prompt(&self, name: String, arguments: Option<HashMap<String, String>>) -> Result<GetPromptResponse, McpError> {
+    pub fn get_prompt(
+        &self,
+        name: String,
+        arguments: Option<HashMap<String, String>>,
+    ) -> Result<GetPromptResponse, McpError> {
         if !self.supports_prompts() {
             return Err(McpError::UnsupportedCapability("prompts"));
         }

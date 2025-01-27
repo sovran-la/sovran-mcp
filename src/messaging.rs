@@ -1,11 +1,13 @@
-use crate::transport::{JsonRpcMessage, JsonRpcNotification, JsonRpcRequest, JsonRpcResponse, Transport};
+use crate::transport::{
+    JsonRpcMessage, JsonRpcNotification, JsonRpcRequest, JsonRpcResponse, Transport,
+};
 use crate::types::*;
+use crate::McpError;
 use std::collections::HashMap;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
-use url::Url;
 use tracing::{debug, warn};
-use crate::McpError;
+use url::Url;
 
 pub struct MessageHandler<T: Transport + 'static> {
     transport: Arc<T>,
@@ -58,7 +60,8 @@ impl<T: Transport + 'static> MessageHandler<T> {
         request: &JsonRpcRequest,
     ) -> Result<(), McpError> {
         debug!("Processing sampling request...");
-        let params = serde_json::from_value(request.clone().params.unwrap_or(serde_json::Value::Null))?;
+        let params =
+            serde_json::from_value(request.clone().params.unwrap_or(serde_json::Value::Null))?;
         let result = handler.handle_message(params)?;
         let value = serde_json::to_value(result)?;
 
@@ -78,13 +81,17 @@ impl<T: Transport + 'static> MessageHandler<T> {
     pub fn handle_response(&self, response: JsonRpcResponse) -> Result<(), McpError> {
         debug!("Got response with id: {}", response.id);
         let mut pending = self.pending_requests.lock().unwrap();
-        debug!("Current pending request IDs: {:?}", pending.keys().collect::<Vec<_>>());
+        debug!(
+            "Current pending request IDs: {:?}",
+            pending.keys().collect::<Vec<_>>()
+        );
 
         if let Some(sender) = pending.remove(&response.id) {
-            sender.send(response.clone())
+            sender
+                .send(response.clone())
                 .map_err(|e| McpError::SendError {
                     id: response.id,
-                    source: e
+                    source: e,
                 })?;
         }
         Ok(())
@@ -101,7 +108,10 @@ impl<T: Transport + 'static> MessageHandler<T> {
         }
     }
 
-    pub fn handle_resource_update(&self, notification: JsonRpcNotification) -> Result<(), McpError> {
+    pub fn handle_resource_update(
+        &self,
+        notification: JsonRpcNotification,
+    ) -> Result<(), McpError> {
         if let Some(handler) = &self.notification_handler {
             if let Some(params) = notification.params {
                 if let Some(uri) = params.get("uri").and_then(|v| v.as_str()) {

@@ -1,6 +1,11 @@
 // commands.rs
+use crate::types::{
+    CallToolRequest, CallToolResponse, GetPromptRequest, GetPromptResponse, InitializeRequest,
+    InitializeResponse, ListPromptsRequest, ListPromptsResponse, ListResourcesRequest,
+    ListResourcesResponse, ListToolsRequest, ListToolsResponse, ReadResourceRequest,
+    ReadResourceResponse, SubscribeRequest, UnsubscribeRequest,
+};
 use crate::types::{CreateMessageRequest, CreateMessageResponse, EmptyResult};
-use crate::types::{CallToolRequest, CallToolResponse, GetPromptRequest, GetPromptResponse, InitializeRequest, InitializeResponse, ListToolsRequest, ListToolsResponse, ListPromptsResponse, ListPromptsRequest, ListResourcesRequest, ListResourcesResponse, ReadResourceRequest, ReadResourceResponse, SubscribeRequest, UnsubscribeRequest};
 use serde::{Deserialize, Serialize};
 
 pub trait McpCommand {
@@ -70,7 +75,7 @@ pub struct Subscribe;
 impl McpCommand for Subscribe {
     const COMMAND: &'static str = "resources/subscribe";
     type Request = SubscribeRequest;
-    type Response = EmptyResult;  // Just returns {}
+    type Response = EmptyResult; // Just returns {}
 }
 
 #[derive(Debug, Clone)]

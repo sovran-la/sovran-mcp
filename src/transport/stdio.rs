@@ -1,9 +1,9 @@
 use super::{JsonRpcMessage, Transport};
+use crate::McpError;
+use std::io::{self, Read};
 use std::io::{BufRead, Write};
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
-use std::io::{self, Read};
-use crate::McpError;
 
 pub struct TimeoutBufReader<R> {
     inner: io::BufReader<R>,
@@ -12,7 +12,7 @@ pub struct TimeoutBufReader<R> {
 impl<R: Read> TimeoutBufReader<R> {
     pub fn new(inner: R) -> Self {
         Self {
-            inner: io::BufReader::new(inner)
+            inner: io::BufReader::new(inner),
         }
     }
 

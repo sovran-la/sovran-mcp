@@ -1,7 +1,7 @@
+use crate::McpError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use url::Url;
-use crate::McpError;
 
 pub const LATEST_PROTOCOL_VERSION: &str = "2024-11-05";
 
@@ -260,7 +260,7 @@ pub struct TextResourceContents {
 #[serde(rename_all = "camelCase")]
 pub struct BlobResourceContents {
     pub uri: Url,
-    pub blob: String,  // base64-encoded
+    pub blob: String, // base64-encoded
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mime_type: Option<String>,
 }
@@ -412,7 +412,10 @@ pub enum ErrorCode {
 
 // Helper trait for handling sampling
 pub trait SamplingHandler: Send + Sync {
-    fn handle_message(&self, request: CreateMessageRequest) -> Result<CreateMessageResponse, McpError>;
+    fn handle_message(
+        &self,
+        request: CreateMessageRequest,
+    ) -> Result<CreateMessageResponse, McpError>;
 }
 
 pub trait NotificationHandler: Send + Sync {
@@ -459,7 +462,6 @@ impl PromptContent {
         matches!(self, PromptContent::Resource(_))
     }
 }
-
 
 /*impl ToolDefinition {
     pub fn schema_example(&self) -> String {

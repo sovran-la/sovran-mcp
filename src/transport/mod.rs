@@ -83,5 +83,5 @@ pub trait Transport: Send + Sync {
 }
 
 mod stdio;
-pub use stdio::*;
 use crate::McpError;
+pub use stdio::*;

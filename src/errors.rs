@@ -1,92 +1,75 @@
-use url::ParseError;
 use crate::transport::{JsonRpcError, JsonRpcResponse};
+use std::error::Error as StdError;
+use std::fmt;
+use thiserror::Error;
+use url::ParseError;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum McpError {
     // Transport/IO related
-    IoError(std::io::Error),
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
+
+    #[error("Transport not open")]
     TransportNotOpen,
 
     // Protocol related
-    JsonRpc(JsonRpcError),
-    SerializationError(serde_json::Error),
+    #[error("JSON-RPC error: {0}")]
+    JsonRpc(#[from] JsonRpcError),
+
+    #[error("Serialization error: {0}")]
+    SerializationError(#[from] serde_json::Error),
 
     // General errors
+    #[error("Failed to spawn process")]
     ProcessSpawnError,
+
+    #[error("Standard input not available")]
     StdinNotAvailable,
+
+    #[error("Standard output not available")]
     StdoutNotAvailable,
+
+    #[error("Client not initialized")]
     ClientNotInitialized,
-    UnsupportedCapability(&'static str),  // e.g. "tools", "prompts", etc
+
+    #[error("Unsupported capability: {0}")]
+    UnsupportedCapability(&'static str),
+
+    #[error("Request timeout for method '{method}': {source}")]
     RequestTimeout {
         method: String,
+        #[source]
         source: std::sync::mpsc::RecvTimeoutError,
     },
+
+    #[error("Command '{command}' failed: {error}")]
     CommandFailed {
         command: String,
         error: JsonRpcError,
     },
+
+    #[error("Missing result in response")]
     MissingResult,
+
+    #[error("Failed to send response for request {id}: {source}")]
     SendError {
         id: u64,
-        source: std::sync::mpsc::SendError<JsonRpcResponse>
+        #[source]
+        source: std::sync::mpsc::SendError<JsonRpcResponse>,
     },
-    UrlParse(ParseError),
+
+    #[error("URL parse error: {0}")]
+    UrlParse(#[from] ParseError),
+
+    #[error("{0}")]
+    Other(String),
 }
 
-impl std::fmt::Display for McpError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::IoError(e) => write!(f, "IO error: {}", e),
-            Self::TransportNotOpen => write!(f, "Transport not opened"),
-            Self::JsonRpc(e) => write!(f, "JSON-RPC error: {}", e.message),
-            Self::SerializationError(e) => write!(f, "Serialization error: {}", e),
-            Self::ProcessSpawnError => write!(f, "Failed to spawn child process"),
-            Self::StdinNotAvailable => write!(f, "Child process stdin not available"),
-            Self::StdoutNotAvailable => write!(f, "Child process stdout not available"),
-            Self::ClientNotInitialized => write!(f, "Client not initialized"),
-            Self::UnsupportedCapability(cap) => write!(f, "Server does not support {}", cap),
-            Self::RequestTimeout { method, source } => {
-                write!(f, "Timeout waiting for response to {}: {}", method, source)
-            }
-            Self::CommandFailed { command, error } => {
-                write!(f, "{} failed: {}", command, error.message)
-            }
-            Self::MissingResult => write!(f, "No result in response"),
-            Self::SendError { id, source } => {
-                write!(f, "Failed to send response for id {}: {}", id, source)
-            }
-            Self::UrlParse(e) => write!(f, "Invalid URL: {}", e),
-        }
+impl fmt::Display for JsonRpcError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "JSON-RPC error {}: {}", self.code, self.message)
     }
 }
 
-impl std::error::Error for McpError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            Self::IoError(e) => Some(e),
-            Self::SerializationError(e) => Some(e),
-            _ => None
-        }
-    }
-}
-
-// Conversion from std::io::Error
-impl From<std::io::Error> for McpError {
-    fn from(error: std::io::Error) -> Self {
-        Self::IoError(error)
-    }
-}
-
-// Conversion from serde_json::Error
-impl From<serde_json::Error> for McpError {
-    fn from(error: serde_json::Error) -> Self {
-        Self::SerializationError(error)
-    }
-}
-
-// Conversion from Url::ParseError
-impl From<ParseError> for McpError {
-    fn from(error: ParseError) -> Self {
-        Self::UrlParse(error)
-    }
-}
+impl StdError for JsonRpcError {}
