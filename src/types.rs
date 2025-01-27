@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use url::Url;
-use anyhow::Result;
+use crate::McpError;
 
 pub const LATEST_PROTOCOL_VERSION: &str = "2024-11-05";
 
@@ -412,11 +412,11 @@ pub enum ErrorCode {
 
 // Helper trait for handling sampling
 pub trait SamplingHandler: Send + Sync {
-    fn handle_message(&self, request: CreateMessageRequest) -> Result<CreateMessageResponse>;
+    fn handle_message(&self, request: CreateMessageRequest) -> Result<CreateMessageResponse, McpError>;
 }
 
 pub trait NotificationHandler: Send + Sync {
-    fn handle_resource_update(&self, uri: &Url) -> Result<()>;
+    fn handle_resource_update(&self, uri: &Url) -> Result<(), McpError>;
 }
 
 impl PromptContent {

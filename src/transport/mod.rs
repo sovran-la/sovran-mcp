@@ -1,4 +1,3 @@
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 /// Request ID type
@@ -68,28 +67,21 @@ pub struct JsonRpcError {
     pub data: Option<serde_json::Value>,
 }
 
-pub type Message = JsonRpcMessage;
-
 /// Basic transport trait for sending/receiving messages
 pub trait Transport: Send + Sync {
     /// Send a message to the transport
-    fn send(&self, message: &Message) -> Result<()>;
+    fn send(&self, message: &JsonRpcMessage) -> Result<(), McpError>;
 
     /// Receive a message from the transport
-    fn receive(&self) -> Result<Message>;
+    fn receive(&self) -> Result<JsonRpcMessage, McpError>;
 
     /// Open the transport
-    fn open(&self) -> Result<()>;
+    fn open(&self) -> Result<(), McpError>;
 
     /// Close the transport
-    fn close(&self) -> Result<()>;
-}
-
-/// Extended transport trait that includes initialization
-pub trait TransportControl: Transport {
-    fn initialize(&mut self) -> Result<()>;
-    fn shutdown(&mut self) -> Result<()>;
+    fn close(&self) -> Result<(), McpError>;
 }
 
 mod stdio;
 pub use stdio::*;
+use crate::McpError;

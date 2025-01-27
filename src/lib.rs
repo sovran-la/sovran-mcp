@@ -3,9 +3,11 @@ pub mod types;
 pub mod client;
 mod commands;
 mod messaging;
+mod errors;
 
 pub use client::Client;
 pub use types::{SamplingHandler, NotificationHandler};
+pub use errors::McpError;
 
 pub fn add(left: u64, right: u64) -> u64 {
     left + right

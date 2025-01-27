@@ -3,12 +3,6 @@
 version = 4
 
 [[package]]
-name = "anyhow"
-version = "1.0.95"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
-
-[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -207,7 +201,6 @@ checksum = "04cbf5b083de1c7e0222a7a51dbfdba1cbe1c6ab0b15e29fff3f6c077fd9cd9f"
 name = "mcp_sync"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "base64",
  "log",
  "serde",

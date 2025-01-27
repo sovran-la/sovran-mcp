@@ -1,7 +1,6 @@
-use crate::transport::{JsonRpcMessage, JsonRpcNotification, JsonRpcRequest, JsonRpcResponse, TransportControl};
+use crate::transport::{JsonRpcMessage, JsonRpcRequest, JsonRpcResponse, Transport};
 use crate::messaging::MessageHandler;
 use crate::types::*;
-use anyhow::Result;
 use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{channel, Sender};
@@ -9,9 +8,10 @@ use std::sync::{atomic::{AtomicU64, Ordering}, Arc, Mutex};
 use std::thread::{self, JoinHandle};
 use url::Url;
 use crate::commands::{CallTool, GetPrompt, Initialize, ListPrompts, ListResources, ListTools, McpCommand, ReadResource, Subscribe, Unsubscribe};
-use tracing::{debug, info, warn};
+use tracing::{debug, warn};
+use crate::McpError;
 
-pub struct Client<T: TransportControl + 'static> {
+pub struct Client<T: Transport + 'static> {
     transport: Arc<T>,
     request_id: Arc<AtomicU64>,
     pending_requests: Arc<Mutex<HashMap<u64, Sender<JsonRpcResponse>>>>,
@@ -22,7 +22,7 @@ pub struct Client<T: TransportControl + 'static> {
     server_info: Arc<Mutex<Option<InitializeResponse>>>,
 }
 
-impl<T: TransportControl + 'static> Drop for Client<T> {
+impl<T: Transport + 'static> Drop for Client<T> {
     fn drop(&mut self) {
         if !self.stop_flag.load(Ordering::SeqCst) {
             // We don't want to panic in drop, so we ignore any errors
@@ -31,7 +31,7 @@ impl<T: TransportControl + 'static> Drop for Client<T> {
     }
 }
 
-impl<T: TransportControl + 'static> Client<T> {
+impl<T: Transport + 'static> Client<T> {
     pub fn new(transport: T,
                sampling_handler: Option<Box<dyn SamplingHandler + Send>>,
                notification_handler: Option<Box<dyn NotificationHandler + Send>>
@@ -48,7 +48,7 @@ impl<T: TransportControl + 'static> Client<T> {
         }
     }
 
-    pub fn start(&mut self) -> Result<()> {
+    pub fn start(&mut self) -> Result<(), McpError> {
         self.transport.open()?;
 
         let handler = MessageHandler::new(
@@ -86,13 +86,13 @@ impl<T: TransportControl + 'static> Client<T> {
         Ok(())
     }
 
-    pub fn stop(&mut self) -> Result<()> {
+    pub fn stop(&mut self) -> Result<(), McpError> {
         // Signal the thread to stop
         self.stop_flag.store(true, Ordering::SeqCst);
 
         // send a dummy command to generate an error which will
         // unblock any pending receive.
-        let r = self.request("__internal/server_stop", None)?;
+        _ = self.request("__internal/server_stop", None)?;
 
         // Kill the transport
         self.transport.close()?;
@@ -108,7 +108,7 @@ impl<T: TransportControl + 'static> Client<T> {
         Ok(())
     }
 
-    fn request(&self, method: &str, params: Option<serde_json::Value>) -> Result<JsonRpcResponse> {
+    fn request(&self, method: &str, params: Option<serde_json::Value>) -> Result<JsonRpcResponse, McpError> {
         let id = self.request_id.fetch_add(1, Ordering::SeqCst);
         debug!("Setting up pending request id: {}", id);
         let (tx, rx) = channel();
@@ -138,13 +138,16 @@ impl<T: TransportControl + 'static> Client<T> {
                 // Remove from pending requests
                 let mut pending = self.pending_requests.lock().unwrap();
                 pending.remove(&id);
-                Err(anyhow::anyhow!("Timeout waiting for response to {}: {}", method, e))
+                Err(McpError::RequestTimeout {
+                    method: method.into(), // Store method name
+                    source: e             // Store underlying error
+                })
             }
         }
     }
 
 
-    pub fn execute<C: McpCommand>(&self, request: C::Request) -> Result<C::Response> {
+    pub fn execute<C: McpCommand>(&self, request: C::Request) -> Result<C::Response, McpError> {
         debug!("Executing command: {}", C::COMMAND);  // Add this
         let response = self.request(
             C::COMMAND,
@@ -153,16 +156,19 @@ impl<T: TransportControl + 'static> Client<T> {
         debug!("Got response for: {}", C::COMMAND);   // Add this
 
         if let Some(error) = response.error {
-            return Err(anyhow::anyhow!("{} failed: {}", C::COMMAND, error.message));
+            return Err(McpError::CommandFailed {
+                command: C::COMMAND.to_string(),
+                error,
+            });
         }
 
         let result = response.result
-            .ok_or_else(|| anyhow::anyhow!("No result in response"))?;
+            .ok_or_else(|| McpError::MissingResult)?;
 
         Ok(serde_json::from_value(result)?)
     }
 
-    fn initialize(&self) -> Result<&Self> {
+    fn initialize(&self) -> Result<&Self, McpError> {
         let request = InitializeRequest {
             protocol_version: LATEST_PROTOCOL_VERSION.to_string(),
             capabilities: ClientCapabilities::default(),
@@ -180,22 +186,22 @@ impl<T: TransportControl + 'static> Client<T> {
         Ok(self)
     }
 
-    pub fn server_capabilities(&self) -> Result<ServerCapabilities> {
+    pub fn server_capabilities(&self) -> Result<ServerCapabilities, McpError> {
         self.server_info
             .lock()
             .unwrap()
             .as_ref()
             .map(|info| info.capabilities.clone())
-            .ok_or_else(|| anyhow::anyhow!("Client not initialized"))
+            .ok_or_else(|| McpError::ClientNotInitialized)
     }
 
-    pub fn server_version(&self) -> Result<String> {
+    pub fn server_version(&self) -> Result<String, McpError> {
         self.server_info
             .lock()
             .unwrap()
             .as_ref()
             .map(|info| info.protocol_version.clone())
-            .ok_or_else(|| anyhow::anyhow!("Client not initialized"))
+            .ok_or_else(|| McpError::ClientNotInitialized)
     }
 
     pub fn has_capability<F>(&self, check: F) -> bool
@@ -263,9 +269,9 @@ impl<T: TransportControl + 'static> Client<T> {
         })
     }
 
-    pub fn list_tools(&self) -> Result<ListToolsResponse> {
+    pub fn list_tools(&self) -> Result<ListToolsResponse, McpError> {
         if !self.supports_tools() {
-            return Err(anyhow::anyhow!("Server does not support tools"));
+            return Err(McpError::UnsupportedCapability("tools"));
         }
         let request = ListToolsRequest {
             cursor: None,
@@ -274,9 +280,9 @@ impl<T: TransportControl + 'static> Client<T> {
         self.execute::<ListTools>(request)
     }
 
-    pub fn call_tool(&self, name: String, arguments: Option<serde_json::Value>) -> Result<CallToolResponse> {
+    pub fn call_tool(&self, name: String, arguments: Option<serde_json::Value>) -> Result<CallToolResponse, McpError> {
         if !self.supports_tools() {
-            return Err(anyhow::anyhow!("Server does not support tools"));
+            return Err(McpError::UnsupportedCapability("tools"));
         }
         let request = CallToolRequest {
             name,
@@ -286,9 +292,9 @@ impl<T: TransportControl + 'static> Client<T> {
         self.execute::<CallTool>(request)
     }
 
-    pub fn list_prompts(&self) -> Result<ListPromptsResponse> {
+    pub fn list_prompts(&self) -> Result<ListPromptsResponse, McpError> {
         if !self.supports_prompts() {
-            return Err(anyhow::anyhow!("Server does not support prompts"));
+            return Err(McpError::UnsupportedCapability("prompts"));
         }
         let request = ListPromptsRequest {
             cursor: None,
@@ -297,48 +303,43 @@ impl<T: TransportControl + 'static> Client<T> {
         self.execute::<ListPrompts>(request)
     }
 
-    pub fn get_prompt(&self, name: String, arguments: Option<HashMap<String, String>>) -> Result<GetPromptResponse> {
+    pub fn get_prompt(&self, name: String, arguments: Option<HashMap<String, String>>) -> Result<GetPromptResponse, McpError> {
         if !self.supports_prompts() {
-            return Err(anyhow::anyhow!("Server does not support prompts"));
+            return Err(McpError::UnsupportedCapability("prompts"));
         }
         let request = GetPromptRequest { name, arguments };
         self.execute::<GetPrompt>(request)
     }
 
-    pub fn list_resources(&self) -> Result<ListResourcesResponse> {
+    pub fn list_resources(&self) -> Result<ListResourcesResponse, McpError> {
         if !self.supports_resources() {
-            return Err(anyhow::anyhow!("Server does not support resources"));
+            return Err(McpError::UnsupportedCapability("resources"));
         }
         let request = ListResourcesRequest { cursor: None };
         self.execute::<ListResources>(request)
     }
 
-    pub fn read_resource(&self, uri: &Url) -> Result<ReadResourceResponse> {
+    pub fn read_resource(&self, uri: &Url) -> Result<ReadResourceResponse, McpError> {
         if !self.supports_resources() {
-            return Err(anyhow::anyhow!("Server does not support resources"));
+            return Err(McpError::UnsupportedCapability("resources"));
         }
         let request = ReadResourceRequest { uri: uri.clone() };
         self.execute::<ReadResource>(request)
     }
 
-    pub fn subscribe(&self, uri: &Url) -> Result<EmptyResult> {
+    pub fn subscribe(&self, uri: &Url) -> Result<EmptyResult, McpError> {
         if !self.supports_resource_subscription() {
-            return Err(anyhow::anyhow!("Server does not support resource subscription"));
+            return Err(McpError::UnsupportedCapability("resources"));
         }
         let request = SubscribeRequest { uri: uri.clone() };
         self.execute::<Subscribe>(request)
     }
 
-    pub fn unsubscribe(&self, uri: &Url) -> Result<EmptyResult> {
+    pub fn unsubscribe(&self, uri: &Url) -> Result<EmptyResult, McpError> {
         if !self.supports_resource_subscription() {
-            return Err(anyhow::anyhow!("Server does not support resource subscription"));
+            return Err(McpError::UnsupportedCapability("resources"));
         }
         let request = UnsubscribeRequest { uri: uri.clone() };
         self.execute::<Unsubscribe>(request)
     }
-}
-
-#[cfg(test)]
-mod tests {
-
 }

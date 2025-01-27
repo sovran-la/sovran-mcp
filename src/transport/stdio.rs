@@ -1,9 +1,9 @@
-use super::{Message, Transport, TransportControl};
-use anyhow::Result;
+use super::{JsonRpcMessage, Transport};
 use std::io::{BufRead, Write};
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::io::{self, Read};
+use crate::McpError;
 
 pub struct TimeoutBufReader<R> {
     inner: io::BufReader<R>,
@@ -31,7 +31,7 @@ pub struct ClientStdioTransport {
 }
 
 impl ClientStdioTransport {
-    pub fn new(program: &str, args: &[&str]) -> Result<Self> {
+    pub fn new(program: &str, args: &[&str]) -> Result<Self, McpError> {
         Ok(ClientStdioTransport {
             stdin: Arc::new(Mutex::new(None)),
             stdout: Arc::new(Mutex::new(None)),
@@ -43,11 +43,11 @@ impl ClientStdioTransport {
 }
 
 impl Transport for ClientStdioTransport {
-    fn send(&self, message: &Message) -> Result<()> {
+    fn send(&self, message: &JsonRpcMessage) -> Result<(), McpError> {
         let mut stdin_guard = self.stdin.lock().unwrap();
         let stdin = stdin_guard
             .as_mut()
-            .ok_or_else(|| anyhow::anyhow!("Transport not opened"))?;
+            .ok_or_else(|| McpError::TransportNotOpen)?;
 
         let serialized = serde_json::to_string(message)?;
         stdin.write_all(serialized.as_bytes())?;
@@ -57,20 +57,20 @@ impl Transport for ClientStdioTransport {
         Ok(())
     }
 
-    fn receive(&self) -> Result<Message> {
+    fn receive(&self) -> Result<JsonRpcMessage, McpError> {
         let mut stdout_guard = self.stdout.lock().unwrap();
         let stdout = stdout_guard
             .as_mut()
-            .ok_or_else(|| anyhow::anyhow!("Transport not opened"))?;
+            .ok_or_else(|| McpError::TransportNotOpen)?;
 
         let mut line = String::new();
         stdout.read_line(&mut line)?;
 
-        let message: Message = serde_json::from_str(&line)?;
+        let message: JsonRpcMessage = serde_json::from_str(&line)?;
         Ok(message)
     }
 
-    fn open(&self) -> Result<()> {
+    fn open(&self) -> Result<(), McpError> {
         let mut child = Command::new(&self.program)
             .args(&self.args)
             .stdin(Stdio::piped())
@@ -80,11 +80,11 @@ impl Transport for ClientStdioTransport {
         let stdin = child
             .stdin
             .take()
-            .ok_or_else(|| anyhow::anyhow!("Child process stdin not available"))?;
+            .ok_or_else(|| McpError::StdinNotAvailable)?;
         let stdout = child
             .stdout
             .take()
-            .ok_or_else(|| anyhow::anyhow!("Child process stdout not available"))?;
+            .ok_or_else(|| McpError::StdoutNotAvailable)?;
 
         *self.stdin.lock().unwrap() = Some(stdin);
         *self.stdout.lock().unwrap() = Some(TimeoutBufReader::new(stdout));
@@ -93,7 +93,7 @@ impl Transport for ClientStdioTransport {
         Ok(())
     }
 
-    fn close(&self) -> Result<()> {
+    fn close(&self) -> Result<(), McpError> {
         if let Some(mut child) = self.child.lock().unwrap().take() {
             let _ = child.kill(); // Kill child process
             let _ = child.wait(); // Wait for process cleanup
@@ -103,16 +103,6 @@ impl Transport for ClientStdioTransport {
         *self.stdin.lock().unwrap() = None;
         *self.stdout.lock().unwrap() = None;
 
-        Ok(())
-    }
-}
-
-impl TransportControl for ClientStdioTransport {
-    fn initialize(&mut self) -> Result<()> {
-        Ok(())
-    }
-
-    fn shutdown(&mut self) -> Result<()> {
         Ok(())
     }
 }

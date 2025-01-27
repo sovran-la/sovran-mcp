@@ -1,17 +1,11 @@
-use mcp_sync::{
-    Client,
-    transport::ClientStdioTransport,
-    types::*,
-};
-
-use anyhow::Result;
+use mcp_sync::{Client, transport::ClientStdioTransport, types::*, McpError};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use url::Url;
-use tracing::{debug, info};
+use tracing::debug;
 
 // Helper function used by multiple tests
-fn create_test_client() -> Result<Client<ClientStdioTransport>> {
+fn create_test_client() -> Result<Client<ClientStdioTransport>, McpError> {
     let transport = ClientStdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?;
     let mut client = Client::new(transport, None, None);
     client.start()?;
@@ -19,7 +13,7 @@ fn create_test_client() -> Result<Client<ClientStdioTransport>> {
 }
 
 #[test]
-fn test_initialization() -> Result<()> {
+fn test_initialization() -> Result<(), McpError> {
     let client = create_test_client()?;
 
     // Check that we got server info
@@ -36,7 +30,7 @@ fn test_initialization() -> Result<()> {
 }
 
 #[test]
-fn test_capability_checks() -> Result<()> {
+fn test_capability_checks() -> Result<(), McpError> {
     let client = create_test_client()?;
 
     // Basic capability checks
@@ -56,7 +50,7 @@ fn test_capability_checks() -> Result<()> {
 }
 
 #[test]
-fn test_prompt_operations() -> Result<()> {
+fn test_prompt_operations() -> Result<(), McpError> {
     let mut client = create_test_client()?;
 
     // Test prompts/list
@@ -76,7 +70,7 @@ fn test_prompt_operations() -> Result<()> {
 }
 
 #[test]
-fn test_quick_prompt_operations() -> Result<()> {
+fn test_quick_prompt_operations() -> Result<(), McpError> {
     let client = create_test_client()?;
 
     let prompts = client.list_prompts()?;
@@ -94,7 +88,7 @@ fn test_quick_prompt_operations() -> Result<()> {
 }
 
 #[test]
-fn test_resource_operations() -> Result<()> {
+fn test_resource_operations() -> Result<(), McpError> {
     let mut client = create_test_client()?;
     // ... resource tests ...
     client.stop()?;
@@ -102,14 +96,14 @@ fn test_resource_operations() -> Result<()> {
 }
 
 #[test]
-fn test_quick_resource_operations() -> Result<()> {
+fn test_quick_resource_operations() -> Result<(), McpError> {
     let client = create_test_client()?;
     // ... quick resource tests ...
     Ok(())
 }
 
 #[test]
-fn test_resource_subscription() -> Result<()> {
+fn test_resource_subscription() -> Result<(), McpError> {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
@@ -119,14 +113,14 @@ fn test_resource_subscription() -> Result<()> {
 }
 
 #[test]
-fn test_tools_operations() -> Result<()> {
+fn test_tools_operations() -> Result<(), McpError> {
     let client = create_test_client()?;
     // ... tools tests ...
     Ok(())
 }
 
 #[test]
-fn test_error_handling() -> Result<()> {
+fn test_error_handling() -> Result<(), McpError> {
     let client = create_test_client()?;
     // ... error handling tests ...
     Ok(())
@@ -138,7 +132,7 @@ struct TestNotificationHandler {
 }
 
 impl NotificationHandler for TestNotificationHandler {
-    fn handle_resource_update(&self, uri: &Url) -> Result<()> {
+    fn handle_resource_update(&self, uri: &Url) -> Result<(), McpError> {
         debug!("Resource update notification received for: {}", uri);
         let mut updates = self.updates.lock().unwrap();
         updates.push(uri.to_string());
@@ -150,7 +144,7 @@ impl NotificationHandler for TestNotificationHandler {
 struct TestSamplingHandler;
 
 impl SamplingHandler for TestSamplingHandler {
-    fn handle_message(&self, request: CreateMessageRequest) -> Result<CreateMessageResponse> {
+    fn handle_message(&self, request: CreateMessageRequest) -> Result<CreateMessageResponse, McpError> {
         // ... sampling handler implementation ...
         Ok(CreateMessageResponse {
             content: MessageContent::Text(TextContent {
