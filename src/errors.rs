@@ -6,21 +6,15 @@ use url::ParseError;
 
 #[derive(Debug, Error)]
 pub enum McpError {
-    // Transport/IO related
+    //
+    // Transport Errors
+    //
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 
     #[error("Transport not open")]
     TransportNotOpen,
 
-    // Protocol related
-    #[error("JSON-RPC error: {0}")]
-    JsonRpc(#[from] JsonRpcError),
-
-    #[error("Serialization error: {0}")]
-    SerializationError(#[from] serde_json::Error),
-
-    // General errors
     #[error("Failed to spawn process")]
     ProcessSpawnError,
 
@@ -30,6 +24,24 @@ pub enum McpError {
     #[error("Standard output not available")]
     StdoutNotAvailable,
 
+    //
+    // Protocol Errors
+    //
+    #[error("JSON-RPC error: {0}")]
+    JsonRpc(#[from] JsonRpcError),
+
+    #[error("Serialization error: {0}")]
+    SerializationError(#[from] serde_json::Error),
+
+    #[error("URL parse error: {0}")]
+    UrlParse(#[from] ParseError),
+
+    #[error("Missing result in response")]
+    MissingResult,
+
+    //
+    // Client Errors
+    //
     #[error("Client not initialized")]
     ClientNotInitialized,
 
@@ -49,9 +61,6 @@ pub enum McpError {
         error: JsonRpcError,
     },
 
-    #[error("Missing result in response")]
-    MissingResult,
-
     #[error("Failed to send response for request {id}: {source}")]
     SendError {
         id: u64,
@@ -59,9 +68,9 @@ pub enum McpError {
         source: std::sync::mpsc::SendError<JsonRpcResponse>,
     },
 
-    #[error("URL parse error: {0}")]
-    UrlParse(#[from] ParseError),
-
+    //
+    // Other Errors
+    //
     #[error("{0}")]
     Other(String),
 }

@@ -22,7 +22,7 @@ impl<R: Read> TimeoutBufReader<R> {
 }
 
 /// ClientStdioTransport launches a child process and communicates with it via stdio
-pub struct ClientStdioTransport {
+pub struct StdioTransport {
     stdin: Arc<Mutex<Option<std::process::ChildStdin>>>,
     stdout: Arc<Mutex<Option<TimeoutBufReader<std::process::ChildStdout>>>>,
     child: Arc<Mutex<Option<Child>>>,
@@ -30,9 +30,9 @@ pub struct ClientStdioTransport {
     args: Vec<String>,
 }
 
-impl ClientStdioTransport {
+impl StdioTransport {
     pub fn new(program: &str, args: &[&str]) -> Result<Self, McpError> {
-        Ok(ClientStdioTransport {
+        Ok(StdioTransport {
             stdin: Arc::new(Mutex::new(None)),
             stdout: Arc::new(Mutex::new(None)),
             child: Arc::new(Mutex::new(None)),
@@ -42,7 +42,7 @@ impl ClientStdioTransport {
     }
 }
 
-impl Transport for ClientStdioTransport {
+impl Transport for StdioTransport {
     fn send(&self, message: &JsonRpcMessage) -> Result<(), McpError> {
         let mut stdin_guard = self.stdin.lock().unwrap();
         let stdin = stdin_guard

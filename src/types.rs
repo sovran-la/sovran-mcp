@@ -1,6 +1,7 @@
 use crate::McpError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt;
 use url::Url;
 
 pub const LATEST_PROTOCOL_VERSION: &str = "2024-11-05";
@@ -82,6 +83,17 @@ pub enum Role {
     User,
     Assistant,
 }
+
+impl fmt::Display for Role {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Role::System => write!(f, "System"),
+            Role::User => write!(f, "User"),
+            Role::Assistant => write!(f, "Assistant"),
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]

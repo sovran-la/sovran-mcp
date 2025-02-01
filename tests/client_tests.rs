@@ -1,15 +1,15 @@
 use base64::Engine;
-use mcp_sync::{transport::ClientStdioTransport, types::*, Client, McpError};
+use sovran_mcp::{transport::StdioTransport, types::*, McpClient, McpError};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tracing::{debug, info};
 use url::Url;
 
 // Helper function used by multiple tests
-fn create_test_client() -> Result<Client<ClientStdioTransport>, McpError> {
+fn create_test_client() -> Result<McpClient<StdioTransport>, McpError> {
     let transport =
-        ClientStdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?;
-    let mut client = Client::new(transport, None, None);
+        StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?;
+    let mut client = McpClient::new(transport, None, None);
     client.start()?;
     Ok(client)
 }
@@ -321,6 +321,7 @@ fn test_error_handling() -> Result<(), McpError> {
 
     Ok(())
 }
+
 #[test]
 fn test_resource_subscription() -> Result<(), McpError> {
     tracing_subscriber::fmt()
@@ -352,8 +353,8 @@ fn test_resource_subscription() -> Result<(), McpError> {
         updates: updates_clone,
     });
     let sampling_handler = Box::new(TestSamplingHandler {});
-    let mut client = Client::new(
-        ClientStdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
+    let mut client = McpClient::new(
+        StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
         Some(sampling_handler),
         Some(notification_handler),
     );

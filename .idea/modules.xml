@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/mcp_sync.iml" filepath="$PROJECT_DIR$/.idea/mcp_sync.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/sovran-mcp.iml" filepath="$PROJECT_DIR$/.idea/sovran-mcp.iml" />
     </modules>
   </component>
 </project>
