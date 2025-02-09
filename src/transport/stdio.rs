@@ -2,7 +2,7 @@ use super::{JsonRpcMessage, Transport};
 use crate::McpError;
 use std::io::{self, Read};
 use std::io::{BufRead, Write};
-use std::process::{Child, Command, Stdio};
+use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use tracing::debug;
 
@@ -24,8 +24,8 @@ impl<R: Read> TimeoutBufReader<R> {
 
 /// ClientStdioTransport launches a child process and communicates with it via stdio
 pub struct StdioTransport {
-    stdin: Arc<Mutex<Option<std::process::ChildStdin>>>,
-    stdout: Arc<Mutex<Option<TimeoutBufReader<std::process::ChildStdout>>>>,
+    stdin: Arc<Mutex<Option<ChildStdin>>>,
+    stdout: Arc<Mutex<Option<TimeoutBufReader<ChildStdout>>>>,
     child: Arc<Mutex<Option<Child>>>,
     program: String,
     args: Vec<String>,
