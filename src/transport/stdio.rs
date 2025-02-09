@@ -75,9 +75,6 @@ impl Transport for StdioTransport {
     }
 
     fn open(&self) -> Result<(), McpError> {
-        Err(McpError::StdoutNotAvailable)
-
-        /*
         println!("StdioTransport: Opening transport");
         let mut child = Command::new(&self.program)
             .args(&self.args)
@@ -102,7 +99,7 @@ impl Transport for StdioTransport {
         *self.child.lock().unwrap() = Some(child);
 
         println!("StdioTransport: Transport opened successfully");
-        Ok(())*/
+        Ok(())
     }
 
     fn close(&self) -> Result<(), McpError> {
