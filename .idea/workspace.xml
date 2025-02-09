@@ -8,8 +8,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/tests/client_tests.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/tests/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/client.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/errors.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/errors.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/transport/stdio.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/transport/stdio.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/client_tests.rs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,6 +25,13 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Rust File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -31,84 +46,53 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Cargo.Doctest of client::execute (line 373).executor": "Run",
-    "Cargo.Doctest of client::get_prompt (line 960).executor": "Run",
-    "Cargo.Doctest of client::new (line 134).executor": "Run",
-    "Cargo.Test client_tests.executor": "Run",
-    "Cargo.Test sovran-mcp.executor": "Run",
-    "Cargo.Test test_error_handling.executor": "Debug",
-    "Cargo.Test test_prompt_operations.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.rust.reset.selective.auto.import": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
-    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
-    "org.rust.first.attach.projects": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Cargo.Doctest of client::execute (line 373).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Doctest of client::get_prompt (line 960).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Doctest of client::new (line 134).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test client_tests.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test client_tests::tests.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test sovran-mcp.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test test_error_handling.executor&quot;: &quot;Debug&quot;,
+    &quot;Cargo.Test test_prompt_operations (1).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test test_prompt_operations.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::client_tests::tests::test_prompt_operations.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.rust.reset.selective.auto.import&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
+    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Cargo.Test client_tests">
-    <configuration name="Doctest of client::execute (line 373)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --doc &quot;client::execute\ (line\ 373)&quot;" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Doctest of client::get_prompt (line 960)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --doc &quot;client::get_prompt\ (line\ 960)&quot;" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Doctest of client::new (line 134)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --doc &quot;client::new\ (line\ 134)&quot;" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
+}</component>
+  <component name="RunManager" selected="Cargo.Test client_tests::tests">
     <configuration name="Test client_tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="test --package sovran-mcp --test client_tests" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test client_tests::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package sovran-mcp --lib tests::client_tests::tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -159,8 +143,42 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test test_prompt_operations" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+    <configuration name="Test test_prompt_operations (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="test --package sovran-mcp --test client_tests test_prompt_operations -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test test_prompt_operations" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package sovran-mcp --test client_tests test_prompt_operations -- --exact --nocapture" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test tests::client_tests::tests::test_prompt_operations" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package sovran-mcp --lib tests::client_tests::tests::test_prompt_operations -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -179,19 +197,19 @@
     <list>
       <item itemvalue="Cargo.Test sovran-mcp" />
       <item itemvalue="Cargo.Test client_tests" />
+      <item itemvalue="Cargo.Test tests::client_tests::tests::test_prompt_operations" />
+      <item itemvalue="Cargo.Test client_tests::tests" />
+      <item itemvalue="Cargo.Test test_prompt_operations (1)" />
       <item itemvalue="Cargo.Test test_error_handling" />
-      <item itemvalue="Cargo.Doctest of client::execute (line 373)" />
-      <item itemvalue="Cargo.Doctest of client::get_prompt (line 960)" />
-      <item itemvalue="Cargo.Doctest of client::new (line 134)" />
       <item itemvalue="Cargo.Test test_prompt_operations" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Test test_error_handling" />
+        <item itemvalue="Cargo.Test client_tests::tests" />
+        <item itemvalue="Cargo.Test tests::client_tests::tests::test_prompt_operations" />
+        <item itemvalue="Cargo.Test test_prompt_operations (1)" />
         <item itemvalue="Cargo.Test test_prompt_operations" />
-        <item itemvalue="Cargo.Doctest of client::execute (line 373)" />
-        <item itemvalue="Cargo.Doctest of client::get_prompt (line 960)" />
-        <item itemvalue="Cargo.Doctest of client::new (line 134)" />
+        <item itemvalue="Cargo.Test test_error_handling" />
       </list>
     </recent_temporary>
   </component>
@@ -212,7 +230,24 @@
       <workItem from="1738441974305" duration="664000" />
       <workItem from="1738442645484" duration="25000" />
       <workItem from="1738442675387" duration="44000" />
-      <workItem from="1738442734673" duration="1875000" />
+      <workItem from="1738442734673" duration="4619000" />
+      <workItem from="1739052486729" duration="624000" />
+      <workItem from="1739120218211" duration="467000" />
+      <workItem from="1739120690042" duration="160000" />
+      <workItem from="1739120855026" duration="294000" />
+      <workItem from="1739121155232" duration="1026000" />
+      <workItem from="1739122188205" duration="30000" />
+      <workItem from="1739122289206" duration="207000" />
+      <workItem from="1739122500255" duration="37000" />
+      <workItem from="1739122543073" duration="63000" />
+      <workItem from="1739122609966" duration="287000" />
+      <workItem from="1739122902219" duration="239000" />
+      <workItem from="1739123147929" duration="468000" />
+      <workItem from="1739123620846" duration="25000" />
+      <workItem from="1739123820040" duration="257000" />
+      <workItem from="1739124081762" duration="42000" />
+      <workItem from="1739124127350" duration="357000" />
+      <workItem from="1739124488796" duration="30000" />
     </task>
     <servers />
   </component>

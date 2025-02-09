@@ -68,6 +68,9 @@ pub enum McpError {
         source: std::sync::mpsc::SendError<JsonRpcResponse>,
     },
 
+    #[error("Terminating the client thread failed.")]
+    ThreadJoinFailed,
+
     //
     // Other Errors
     //

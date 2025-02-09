@@ -4,6 +4,7 @@ use std::io::{self, Read};
 use std::io::{BufRead, Write};
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
+use tracing::debug;
 
 pub struct TimeoutBufReader<R> {
     inner: io::BufReader<R>,
@@ -32,6 +33,7 @@ pub struct StdioTransport {
 
 impl StdioTransport {
     pub fn new(program: &str, args: &[&str]) -> Result<Self, McpError> {
+        println!("Creating StdioTransport for {} with args: {:?}", program, args);
         Ok(StdioTransport {
             stdin: Arc::new(Mutex::new(None)),
             stdout: Arc::new(Mutex::new(None)),
@@ -64,18 +66,27 @@ impl Transport for StdioTransport {
             .ok_or_else(|| McpError::TransportNotOpen)?;
 
         let mut line = String::new();
+        debug!("stdio: waiting on messge");
         stdout.read_line(&mut line)?;
+        debug!("stdio: Received message: {:?}", line);
 
         let message: JsonRpcMessage = serde_json::from_str(&line)?;
         Ok(message)
     }
 
     fn open(&self) -> Result<(), McpError> {
+        Err(McpError::StdoutNotAvailable)
+
+        /*
+        println!("StdioTransport: Opening transport");
         let mut child = Command::new(&self.program)
             .args(&self.args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()?;
+
+        let pid = child.id();
+        println!("StdioTransport: Started child process with PID {}", pid);
 
         let stdin = child
             .stdin
@@ -90,19 +101,27 @@ impl Transport for StdioTransport {
         *self.stdout.lock().unwrap() = Some(TimeoutBufReader::new(stdout));
         *self.child.lock().unwrap() = Some(child);
 
-        Ok(())
+        println!("StdioTransport: Transport opened successfully");
+        Ok(())*/
     }
 
     fn close(&self) -> Result<(), McpError> {
+        println!("StdioTransport: Starting close");
         if let Some(mut child) = self.child.lock().unwrap().take() {
-            let _ = child.kill(); // Kill child process
-            let _ = child.wait(); // Wait for process cleanup
+            let pid = child.id();
+            println!("StdioTransport: Killing child process {}", pid);
+            let _ = child.kill();
+            println!("StdioTransport: Waiting for child process {}", pid);
+            let _ = child.wait();
+            println!("StdioTransport: Child process {} terminated", pid);
         }
 
+        println!("StdioTransport: Dropping stdin/stdout");
         // Drop stdin and stdout to unblock any pending operations
         *self.stdin.lock().unwrap() = None;
         *self.stdout.lock().unwrap() = None;
 
+        println!("StdioTransport: Close completed");
         Ok(())
     }
 }
