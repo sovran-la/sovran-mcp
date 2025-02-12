@@ -7,7 +7,11 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="" />
+    <list default="true" id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/errors.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/errors.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/transport/stdio.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/transport/stdio.rs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -47,6 +51,7 @@
     &quot;Cargo.Test test_prompt_operations (1).executor&quot;: &quot;Run&quot;,
     &quot;Cargo.Test test_prompt_operations.executor&quot;: &quot;Run&quot;,
     &quot;Cargo.Test tests::client_tests::tests::test_prompt_operations.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::client_tests::tests::test_resource_operations.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.rust.reset.selective.auto.import&quot;: &quot;true&quot;,
@@ -115,23 +120,6 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test test_error_handling" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --test client_tests test_error_handling -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Test test_prompt_operations (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="test --package sovran-mcp --test client_tests test_prompt_operations -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -183,22 +171,39 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test tests::client_tests::tests::test_resource_operations" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package sovran-mcp --lib tests::client_tests::tests::test_resource_operations -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Cargo.Test sovran-mcp" />
       <item itemvalue="Cargo.Test client_tests" />
+      <item itemvalue="Cargo.Test tests::client_tests::tests::test_resource_operations" />
       <item itemvalue="Cargo.Test tests::client_tests::tests::test_prompt_operations" />
       <item itemvalue="Cargo.Test client_tests::tests" />
       <item itemvalue="Cargo.Test test_prompt_operations (1)" />
-      <item itemvalue="Cargo.Test test_error_handling" />
       <item itemvalue="Cargo.Test test_prompt_operations" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Cargo.Test client_tests::tests" />
+        <item itemvalue="Cargo.Test tests::client_tests::tests::test_resource_operations" />
         <item itemvalue="Cargo.Test tests::client_tests::tests::test_prompt_operations" />
         <item itemvalue="Cargo.Test test_prompt_operations (1)" />
         <item itemvalue="Cargo.Test test_prompt_operations" />
-        <item itemvalue="Cargo.Test test_error_handling" />
       </list>
     </recent_temporary>
   </component>
@@ -240,6 +245,17 @@
       <workItem from="1739124551033" duration="1731000" />
       <workItem from="1739126288532" duration="27000" />
       <workItem from="1739126323023" duration="286000" />
+      <workItem from="1739126613232" duration="398000" />
+      <workItem from="1739127016111" duration="32000" />
+      <workItem from="1739127053027" duration="19000" />
+      <workItem from="1739127076273" duration="24000" />
+      <workItem from="1739127105796" duration="13000" />
+      <workItem from="1739127122482" duration="12000" />
+      <workItem from="1739127139081" duration="705000" />
+      <workItem from="1739382885558" duration="434000" />
+      <workItem from="1739383328948" duration="117000" />
+      <workItem from="1739383450517" duration="124000" />
+      <workItem from="1739383578466" duration="558000" />
     </task>
     <servers />
   </component>

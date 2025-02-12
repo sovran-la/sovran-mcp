@@ -243,7 +243,7 @@ impl<T: Transport + 'static> McpClient<T> {
                     }
                 }
             }
-            println!("Message handling thread exited");
+            debug!("Message handling thread exited");
         });
 
         *handle_wrapper.lock().unwrap() = Some(handle);
@@ -293,9 +293,9 @@ impl<T: Transport + 'static> McpClient<T> {
         // Join the thread if it hasn't detached
         if let Some(wrapper) = self.listener_handle.take() {
             if let Some(handle) = wrapper.lock().unwrap().take() {
-                println!("client::stop() attempting to join message handling thread");
+                debug!("client::stop() attempting to join message handling thread");
                 handle.join().map_err(|_| McpError::ThreadJoinFailed)?;
-                println!("client::stop() joined message handling thread");
+                debug!("client::stop() joined message handling thread");
             }
         }
 

@@ -1,7 +1,6 @@
 use super::{JsonRpcMessage, Transport};
 use crate::McpError;
-use std::io::{self, Read};
-use std::io::{BufRead, Write};
+use std::io::{self, Read, BufRead, Write};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use tracing::debug;
@@ -33,7 +32,7 @@ pub struct StdioTransport {
 
 impl StdioTransport {
     pub fn new(program: &str, args: &[&str]) -> Result<Self, McpError> {
-        println!("Creating StdioTransport for {} with args: {:?}", program, args);
+        debug!("Creating StdioTransport for {} with args: {:?}", program, args);
         Ok(StdioTransport {
             stdin: Arc::new(Mutex::new(None)),
             stdout: Arc::new(Mutex::new(None)),
@@ -54,7 +53,7 @@ impl Transport for StdioTransport {
         let serialized = serde_json::to_string(message)?;
         stdin.write_all(serialized.as_bytes())?;
         stdin.write_all(b"\n")?;
-        stdin.flush()?;
+        stdin.flush()?; // Ensure the data is flushed
 
         Ok(())
     }
@@ -66,7 +65,7 @@ impl Transport for StdioTransport {
             .ok_or_else(|| McpError::TransportNotOpen)?;
 
         let mut line = String::new();
-        debug!("stdio: waiting on messge");
+        debug!("stdio: waiting on message");
         stdout.read_line(&mut line)?;
         debug!("stdio: Received message: {:?}", line);
 
@@ -75,15 +74,16 @@ impl Transport for StdioTransport {
     }
 
     fn open(&self) -> Result<(), McpError> {
-        println!("StdioTransport: Opening transport");
+        debug!("StdioTransport: Opening transport");
         let mut child = Command::new(&self.program)
             .args(&self.args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
+            .stderr(Stdio::piped()) // Capture stderr
             .spawn()?;
 
         let pid = child.id();
-        println!("StdioTransport: Started child process with PID {}", pid);
+        debug!("StdioTransport: Started child process with PID {}", pid);
 
         let stdin = child
             .stdin
@@ -93,32 +93,45 @@ impl Transport for StdioTransport {
             .stdout
             .take()
             .ok_or_else(|| McpError::StdoutNotAvailable)?;
+        let stderr = child
+            .stderr
+            .take()
+            .ok_or_else(|| McpError::StderrNotAvailable)?;
 
         *self.stdin.lock().unwrap() = Some(stdin);
         *self.stdout.lock().unwrap() = Some(TimeoutBufReader::new(stdout));
+
+        // Intercept stderr
+        let stderr_reader = io::BufReader::new(stderr);
+        std::thread::spawn(move || {
+            for line in stderr_reader.lines() {
+                if let Ok(line) = line {
+                    println!("MCP Server Stderr: {}", line);
+                }
+            }
+        });
+
         *self.child.lock().unwrap() = Some(child);
 
-        println!("StdioTransport: Transport opened successfully");
+        debug!("StdioTransport: Transport opened successfully");
         Ok(())
     }
 
     fn close(&self) -> Result<(), McpError> {
-        println!("StdioTransport: Starting close");
+        debug!("StdioTransport: Starting close");
         if let Some(mut child) = self.child.lock().unwrap().take() {
             let pid = child.id();
-            println!("StdioTransport: Killing child process {}", pid);
+            debug!("StdioTransport: Killing child process {}", pid);
             let _ = child.kill();
-            println!("StdioTransport: Waiting for child process {}", pid);
             let _ = child.wait();
-            println!("StdioTransport: Child process {} terminated", pid);
+            debug!("StdioTransport: Child process {} terminated", pid);
         }
 
-        println!("StdioTransport: Dropping stdin/stdout");
         // Drop stdin and stdout to unblock any pending operations
         *self.stdin.lock().unwrap() = None;
         *self.stdout.lock().unwrap() = None;
 
-        println!("StdioTransport: Close completed");
+        debug!("StdioTransport: Close completed");
         Ok(())
     }
 }
