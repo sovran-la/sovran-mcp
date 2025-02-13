@@ -5,7 +5,7 @@ A synchronous Rust client for the Model Context Protocol (MCP).
 
 ## Overview
 
-`sovran_mcp` provides a clean, synchronous interface for interacting with MCP servers. It handles:
+`sovran-mcp` provides a clean, synchronous interface for interacting with MCP servers. It handles:
 - Tool execution and discovery
 - Prompt management
 - Resource handling and subscriptions
@@ -16,7 +16,7 @@ A synchronous Rust client for the Model Context Protocol (MCP).
 Add to your `Cargo.toml`:
 ```toml
 [dependencies]
-sovran_mcp = "0.3.1"
+sovran-mcp = "0.3.1"
 ```
 
 Basic example:

@@ -4,6 +4,8 @@ mod tests {
     use crate::{transport::StdioTransport, types::*, McpClient, McpError};
     use std::collections::HashMap;
     use std::sync::{Arc, Mutex};
+    use std::thread::sleep;
+    use std::time::Duration;
     use tracing::{debug, info};
     use url::Url;
 
@@ -14,6 +16,22 @@ mod tests {
         let mut client = McpClient::new(transport, None, None);
         client.start()?;
         Ok(client)
+    }
+
+    #[test]
+    fn test_fetch_compatibility() -> Result<(), McpError> {
+        let transport = StdioTransport::new("uvx", &["mcp-server-fetch"])?;
+        let mut client = McpClient::new(transport, None, None);
+        client.start()?;
+
+        //println!("Waiting 30 seconds...");
+        //sleep(Duration::from_secs(30));
+
+        println!("Attempting list_tools...");
+        let tools = client.list_tools()?;
+        println!("Tools: {:?}", tools);
+
+        Ok(())
     }
 
     #[test]

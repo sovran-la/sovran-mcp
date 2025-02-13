@@ -50,7 +50,7 @@ use crate::commands::{
     ReadResource, Subscribe, Unsubscribe,
 };
 use crate::messaging::MessageHandler;
-use crate::transport::{JsonRpcMessage, JsonRpcRequest, JsonRpcResponse, Transport};
+use crate::transport::{JsonRpcMessage, JsonRpcNotification, JsonRpcRequest, JsonRpcResponse, JsonRpcVersion, Transport};
 use crate::types::*;
 use crate::McpError;
 use std::collections::HashMap;
@@ -249,7 +249,21 @@ impl<T: Transport + 'static> McpClient<T> {
         *handle_wrapper.lock().unwrap() = Some(handle);
         self.listener_handle = Some(handle_wrapper);
 
+        // Phase 1: Initialize request/response
         self.initialize()?;
+        debug!("Phase 1 complete: Received initialize response");
+
+        // Phase 2: Send initialized notification
+        let notification = JsonRpcNotification {
+            method: "notifications/initialized".to_string(),
+            params: None,
+            jsonrpc: JsonRpcVersion::default(), // This should be "2.0"
+        };
+
+        debug!("Phase 2: Sending initialized notification to complete initialization");
+        self.transport.send(&JsonRpcMessage::Notification(notification))?;
+        debug!("Two-phase initialization complete");
+
         Ok(())
     }
 
@@ -308,17 +322,12 @@ impl<T: Transport + 'static> McpClient<T> {
         params: Option<serde_json::Value>,
     ) -> Result<JsonRpcResponse, McpError> {
         let id = self.request_id.fetch_add(1, Ordering::SeqCst);
-        debug!("Setting up pending request id: {}", id);
         let (tx, rx) = channel();
 
         // Store the sender
         {
             let mut pending = self.pending_requests.lock().unwrap();
             pending.insert(id, tx);
-            debug!(
-                "Added pending request. Current IDs: {:?}",
-                pending.keys().collect::<Vec<_>>()
-            );
         }
 
         // Send the request
@@ -328,24 +337,23 @@ impl<T: Transport + 'static> McpClient<T> {
             params,
             jsonrpc: Default::default(),
         };
-        debug!("Sending request: {:?}", request);
         self.transport.send(&JsonRpcMessage::Request(request))?;
 
-        // Wait for response with timeout
-        debug!("Waiting for response to id: {}", id);
+        // Wait for response with timeout but DON'T remove the pending request
         match rx.recv_timeout(std::time::Duration::from_secs(2)) {
-            Ok(response) => Ok(response),
-            Err(e) => {
-                // Remove from pending requests
+            Ok(response) => {
+                // Only remove on success
                 let mut pending = self.pending_requests.lock().unwrap();
                 pending.remove(&id);
-                Err(McpError::RequestTimeout {
-                    method: method.into(), // Store method name
-                    source: e,             // Store underlying error
-                })
+                Ok(response)
             }
+            Err(e) => Err(McpError::RequestTimeout {
+                method: method.into(),
+                source: e,
+            })
         }
     }
+
 
     /// Executes a generic MCP command on the server.
     ///
@@ -440,6 +448,7 @@ impl<T: Transport + 'static> McpClient<T> {
         };
 
         let response = self.execute::<Initialize>(request)?;
+        println!("{:?}", response);
 
         // Store the response
         *self.server_info.lock().unwrap() = Some(response);
