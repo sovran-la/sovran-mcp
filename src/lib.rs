@@ -1,7 +1,7 @@
 pub mod client;
 mod commands;
 mod errors;
-mod messaging;
+pub mod messaging;
 pub mod transport;
 pub mod types;
 

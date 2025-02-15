@@ -133,10 +133,13 @@ impl<T: Transport + 'static> McpClient<T> {
     /// ```
     ///
     /// Client with sampling and notification handlers:
-    /// ```
+    /// ```no_run
     /// use sovran_mcp::{McpClient, transport::StdioTransport, types::*, McpError};
     /// use std::sync::Arc;
-    /// use url::Url;
+    /// use serde_json::Value;
+    /// use url::Url;    ///
+    ///
+    /// use sovran_mcp::messaging::{LogLevel, NotificationMethod};
     ///
     /// // Handler for LLM completion requests
     /// struct MySamplingHandler;
@@ -161,6 +164,18 @@ impl<T: Transport + 'static> McpClient<T> {
     ///     fn handle_resource_update(&self, uri: &Url) -> Result<(), McpError> {
     ///         println!("Resource updated: {}", uri);
     ///         Ok(())
+    ///     }
+    ///     fn handle_initialized(&self) {
+    ///         todo!()
+    ///     }
+    ///     fn handle_log_message(&self, level: &LogLevel, data: &Value, logger: &Option<String>) {
+    ///         todo!()
+    ///     }
+    ///     fn handle_progress_update(&self, token: &String, progress: &f64, total: &Option<f64>) {
+    ///         todo!()
+    ///     }
+    ///     fn handle_list_changed(&self, method: &NotificationMethod) {
+    ///         todo!()
     ///     }
     /// }
     ///
@@ -206,7 +221,7 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// use sovran_mcp::{McpClient, transport::StdioTransport};
     ///
     /// let transport = StdioTransport::new("npx", &["-y", "server-name"])?;
@@ -378,7 +393,7 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # use sovran_mcp::{McpClient, transport::StdioTransport, McpCommand};
     /// use serde::{Serialize, Deserialize};
     ///
@@ -403,7 +418,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// }
     ///
     /// # let mut client = McpClient::new(
-    /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
+    /// #     StdioTransport::new("npx", &["-y", "@myserver/dummy_server"])?,
     /// #     None,
     /// #     None
     /// # );
@@ -446,8 +461,6 @@ impl<T: Transport + 'static> McpClient<T> {
         };
 
         let response = self.execute::<Initialize>(request)?;
-        println!("{:?}", response);
-
         // Store the response
         *self.server_info.lock().unwrap() = Some(response);
 
@@ -1127,16 +1140,29 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// # Examples
     ///
-    /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*, McpError};
+    /// ```no_run
+    /// # use sovran_mcp::{McpClient, transport::StdioTransport, messaging::*, types::*, McpError};
     /// # use url::Url;
     /// # use std::sync::Arc;
+    /// # use serde_json::Value;
     /// // Create a notification handler
     /// struct MyNotificationHandler;
     /// impl NotificationHandler for MyNotificationHandler {
     ///     fn handle_resource_update(&self, uri: &Url) -> Result<(), McpError> {
     ///         println!("Resource updated: {}", uri);
     ///         Ok(())
+    ///     }
+    ///     fn handle_log_message(&self, level: &LogLevel, data: &Value, logger: &Option<String>) {
+    ///         todo!()
+    ///     }
+    ///     fn handle_progress_update(&self, token: &String, progress: &f64, total: &Option<f64>) {
+    ///         todo!()
+    ///     }
+    ///     fn handle_initialized(&self) {
+    ///         todo!()
+    ///     }
+    ///     fn handle_list_changed(&self, method: &NotificationMethod) {
+    ///         todo!()
     ///     }
     /// }
     ///
