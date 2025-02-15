@@ -9,7 +9,6 @@ pub mod types;
 mod tests;
 
 pub use client::McpClient;
+pub use commands::McpCommand;
 pub use errors::McpError;
 pub use types::{NotificationHandler, SamplingHandler};
-pub use commands::McpCommand;
-

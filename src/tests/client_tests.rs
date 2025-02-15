@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use base64::Engine;
+    use crate::messaging::{LogLevel, NotificationMethod};
     use crate::{transport::StdioTransport, types::*, McpClient, McpError};
+    use base64::Engine;
+    use serde_json::Value;
     use std::collections::HashMap;
     use std::sync::{Arc, Mutex};
-    use std::thread::sleep;
-    use std::time::Duration;
     use tracing::{debug, info};
     use url::Url;
 
@@ -24,12 +24,10 @@ mod tests {
         let mut client = McpClient::new(transport, None, None);
         client.start()?;
 
-        //println!("Waiting 30 seconds...");
-        //sleep(Duration::from_secs(30));
-
         println!("Attempting list_tools...");
         let tools = client.list_tools()?;
-        println!("Tools: {:?}", tools);
+
+        assert_eq!(tools.tools.is_empty(), false);
 
         Ok(())
     }
@@ -55,7 +53,8 @@ mod tests {
             Some("A prompt without arguments")
         );
         assert!(
-            simple_prompt.arguments.is_none() || simple_prompt.arguments.as_ref().unwrap().is_empty()
+            simple_prompt.arguments.is_none()
+                || simple_prompt.arguments.as_ref().unwrap().is_empty()
         );
 
         // Verify complex_prompt
@@ -177,7 +176,9 @@ mod tests {
                     .map_err(|e| McpError::Other(format!("UTF-8 decode error: {}", e)))?;
                 assert!(decoded_str.contains("This is a base64 blob"));
             }
-            ResourceContent::Text(_) => panic!("Expected binary content for even-numbered resource"),
+            ResourceContent::Text(_) => {
+                panic!("Expected binary content for even-numbered resource")
+            }
         }
 
         client.stop()?;
@@ -371,6 +372,32 @@ mod tests {
                 debug!("Added notification. Current count: {}", updates.len());
                 Ok(())
             }
+
+            fn handle_log_message(
+                &self,
+                _level: &LogLevel,
+                _data: &Value,
+                _logger: &Option<String>,
+            ) {
+                todo!()
+            }
+
+            fn handle_progress_update(
+                &self,
+                _token: &String,
+                _progress: &f64,
+                _total: &Option<f64>,
+            ) {
+                todo!()
+            }
+
+            fn handle_initialized(&self) {
+                todo!()
+            }
+
+            fn handle_list_changed(&self, _method: &NotificationMethod) {
+                todo!()
+            }
         }
 
         // Create client with handlers
@@ -465,5 +492,4 @@ mod tests {
             Ok(response)
         }
     }
-
 }

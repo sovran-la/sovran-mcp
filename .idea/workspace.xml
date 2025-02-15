@@ -9,9 +9,13 @@
   <component name="ChangeListManager">
     <list default="true" id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/client.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/errors.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/errors.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/messaging.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/messaging.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/tests/client_tests.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/client_tests.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/transport/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/transport/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/transport/stdio.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/transport/stdio.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,36 +44,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Cargo.Doctest of client::execute (line 373).executor": "Run",
-    "Cargo.Doctest of client::get_prompt (line 960).executor": "Run",
-    "Cargo.Doctest of client::new (line 134).executor": "Run",
-    "Cargo.Test client_tests.executor": "Run",
-    "Cargo.Test client_tests::tests.executor": "Run",
-    "Cargo.Test sovran-mcp.executor": "Run",
-    "Cargo.Test test_error_handling.executor": "Debug",
-    "Cargo.Test test_prompt_operations (1).executor": "Run",
-    "Cargo.Test test_prompt_operations.executor": "Run",
-    "Cargo.Test tests::client_tests::tests::test_fetch_compatibility.executor": "Run",
-    "Cargo.Test tests::client_tests::tests::test_prompt_operations.executor": "Run",
-    "Cargo.Test tests::client_tests::tests::test_resource_operations.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.rust.reset.selective.auto.import": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
-    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
-    "org.rust.first.attach.projects": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Cargo.Doctest of client::execute (line 373).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Doctest of client::get_prompt (line 960).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Doctest of client::new (line 134).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test client_tests.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test client_tests::tests.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test sovran-mcp.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test test_error_handling.executor&quot;: &quot;Debug&quot;,
+    &quot;Cargo.Test test_prompt_operations (1).executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test test_prompt_operations.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::client_tests::tests::test_fetch_compatibility.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::client_tests::tests::test_prompt_operations.executor&quot;: &quot;Run&quot;,
+    &quot;Cargo.Test tests::client_tests::tests::test_resource_operations.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.rust.reset.selective.auto.import&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
+    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Cargo.Test tests::client_tests::tests::test_fetch_compatibility">
+}</component>
+  <component name="RunManager" selected="Cargo.Test client_tests::tests">
     <configuration name="Test client_tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="test --package sovran-mcp --test client_tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -201,8 +205,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Test tests::client_tests::tests::test_fetch_compatibility" />
         <item itemvalue="Cargo.Test client_tests::tests" />
+        <item itemvalue="Cargo.Test tests::client_tests::tests::test_fetch_compatibility" />
         <item itemvalue="Cargo.Test tests::client_tests::tests::test_resource_operations" />
         <item itemvalue="Cargo.Test tests::client_tests::tests::test_prompt_operations" />
         <item itemvalue="Cargo.Test test_prompt_operations (1)" />
@@ -257,7 +261,8 @@
       <workItem from="1739382885558" duration="434000" />
       <workItem from="1739383328948" duration="117000" />
       <workItem from="1739383450517" duration="124000" />
-      <workItem from="1739383578466" duration="8792000" />
+      <workItem from="1739383578466" duration="11883000" />
+      <workItem from="1739566943629" duration="5254000" />
     </task>
     <servers />
   </component>
@@ -269,7 +274,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/client.rs</url>
-          <line>440</line>
+          <line>435</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

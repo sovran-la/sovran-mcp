@@ -1,6 +1,7 @@
-use super::{JsonRpcMessage, Transport};
+use crate::messaging::JsonRpcMessage;
+use crate::transport::Transport;
 use crate::McpError;
-use std::io::{self, Read, BufRead, Write};
+use std::io::{self, BufRead, Read, Write};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use tracing::debug;
@@ -32,7 +33,10 @@ pub struct StdioTransport {
 
 impl StdioTransport {
     pub fn new(program: &str, args: &[&str]) -> Result<Self, McpError> {
-        debug!("Creating StdioTransport for {} with args: {:?}", program, args);
+        debug!(
+            "Creating StdioTransport for {} with args: {:?}",
+            program, args
+        );
         Ok(StdioTransport {
             stdin: Arc::new(Mutex::new(None)),
             stdout: Arc::new(Mutex::new(None)),

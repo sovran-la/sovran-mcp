@@ -49,8 +49,10 @@ use crate::commands::{
     CallTool, GetPrompt, Initialize, ListPrompts, ListResources, ListTools, McpCommand,
     ReadResource, Subscribe, Unsubscribe,
 };
-use crate::messaging::MessageHandler;
-use crate::transport::{JsonRpcMessage, JsonRpcNotification, JsonRpcRequest, JsonRpcResponse, JsonRpcVersion, Transport};
+use crate::messaging::{
+    JsonRpcMessage, JsonRpcNotification, JsonRpcRequest, JsonRpcResponse, MessageHandler,
+};
+use crate::transport::Transport;
 use crate::types::*;
 use crate::McpError;
 use std::collections::HashMap;
@@ -254,14 +256,11 @@ impl<T: Transport + 'static> McpClient<T> {
         debug!("Phase 1 complete: Received initialize response");
 
         // Phase 2: Send initialized notification
-        let notification = JsonRpcNotification {
-            method: "notifications/initialized".to_string(),
-            params: None,
-            jsonrpc: JsonRpcVersion::default(), // This should be "2.0"
-        };
-
-        debug!("Phase 2: Sending initialized notification to complete initialization");
-        self.transport.send(&JsonRpcMessage::Notification(notification))?;
+        // Phase 2: Send initialized notification
+        debug!("Phase 2: Sending initialized notification");
+        self.transport.send(&JsonRpcMessage::Notification(
+            JsonRpcNotification::initialized(),
+        ))?;
         debug!("Two-phase initialization complete");
 
         Ok(())
@@ -350,10 +349,9 @@ impl<T: Transport + 'static> McpClient<T> {
             Err(e) => Err(McpError::RequestTimeout {
                 method: method.into(),
                 source: e,
-            })
+            }),
         }
     }
-
 
     /// Executes a generic MCP command on the server.
     ///

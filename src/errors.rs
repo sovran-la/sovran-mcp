@@ -1,4 +1,4 @@
-use crate::transport::{JsonRpcError, JsonRpcResponse};
+use crate::messaging::{JsonRpcError, JsonRpcResponse};
 use std::error::Error as StdError;
 use std::fmt;
 use thiserror::Error;

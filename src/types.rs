@@ -1,10 +1,17 @@
+use crate::messaging::{LogLevel, NotificationMethod};
 use crate::McpError;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
 use url::Url;
 
 pub const LATEST_PROTOCOL_VERSION: &str = "2024-11-05";
+
+//
+// Core Protocol Types
+// Basic types used throughout the MCP implementation
+//
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -12,6 +19,29 @@ pub struct Implementation {
     pub name: String,
     pub version: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum Role {
+    System,
+    User,
+    Assistant,
+}
+
+impl fmt::Display for Role {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Role::System => write!(f, "System"),
+            Role::User => write!(f, "User"),
+            Role::Assistant => write!(f, "Assistant"),
+        }
+    }
+}
+
+//
+// Initialization & Capabilities
+// Types used during protocol initialization and capability negotiation
+//
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -75,25 +105,10 @@ pub struct ResourceCapabilities {
     pub list_changed: Option<bool>,
 }
 
-// Message types
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum Role {
-    System,
-    User,
-    Assistant,
-}
-
-impl fmt::Display for Role {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Role::System => write!(f, "System"),
-            Role::User => write!(f, "User"),
-            Role::Assistant => write!(f, "Assistant"),
-        }
-    }
-}
-
+//
+// Message Content Types
+// Types representing different kinds of message content
+//
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
@@ -116,7 +131,11 @@ pub struct ImageContent {
     pub mime_type: String,
 }
 
-// Tool-related types
+//
+// Tool-related Types
+// Types for tool definitions, requests, and responses
+//
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ToolDefinition {
@@ -176,7 +195,11 @@ pub enum ToolResponseContent {
     Resource { resource: ResourceContents },
 }
 
-// Resource-related types
+//
+// Resource-related Types
+// Types for handling resources and their contents
+//
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResourceContents {
@@ -277,7 +300,11 @@ pub struct BlobResourceContents {
     pub mime_type: Option<String>,
 }
 
-// Prompt-related types
+//
+// Prompt-related Types
+// Types for handling prompts and their arguments
+//
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListPromptsRequest {
@@ -358,7 +385,11 @@ pub struct EmbeddedResource {
     pub resource: ResourceContents,
 }
 
-// Sampling-related types
+//
+// Sampling-related Types
+// Types for model sampling and message creation
+//
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ModelPreferences {
@@ -411,7 +442,11 @@ pub struct SamplingMessage {
     pub content: MessageContent,
 }
 
-// Error codes
+//
+// Error Handling
+// Error codes and related types
+//
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ErrorCode {
     // Standard JSON-RPC error codes
@@ -422,7 +457,11 @@ pub enum ErrorCode {
     InternalError = -32603,
 }
 
-// Helper trait for handling sampling
+//
+// Trait Definitions
+// Core traits for protocol handlers
+//
+
 pub trait SamplingHandler: Send + Sync {
     fn handle_message(
         &self,
@@ -432,7 +471,16 @@ pub trait SamplingHandler: Send + Sync {
 
 pub trait NotificationHandler: Send + Sync {
     fn handle_resource_update(&self, uri: &Url) -> Result<(), McpError>;
+    fn handle_log_message(&self, level: &LogLevel, data: &Value, logger: &Option<String>);
+    fn handle_progress_update(&self, token: &String, progress: &f64, total: &Option<f64>);
+    fn handle_initialized(&self);
+    fn handle_list_changed(&self, method: &NotificationMethod);
 }
+
+//
+// Helper Implementations
+// Additional functionality for core types
+//
 
 impl PromptContent {
     /// Returns the text content if this content is text
@@ -474,6 +522,11 @@ impl PromptContent {
         matches!(self, PromptContent::Resource(_))
     }
 }
+
+//
+// Tool Schema Generation
+// Currently disabled but to be fixed
+//
 
 /*impl ToolDefinition {
     pub fn schema_example(&self) -> String {
