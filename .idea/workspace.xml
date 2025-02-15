@@ -9,10 +9,6 @@
   <component name="ChangeListManager">
     <list default="true" id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/client.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,6 +44,7 @@
     "Cargo.Doctest of client::execute (line 381).executor": "Run",
     "Cargo.Doctest of client::get_prompt (line 960).executor": "Run",
     "Cargo.Doctest of client::new (line 134).executor": "Run",
+    "Cargo.Doctest of client::subscribe (line 1143).executor": "Run",
     "Cargo.Test client_tests.executor": "Run",
     "Cargo.Test client_tests::tests.executor": "Run",
     "Cargo.Test sovran-mcp.executor": "Run",
@@ -262,7 +259,7 @@
       <workItem from="1739383450517" duration="124000" />
       <workItem from="1739383578466" duration="11883000" />
       <workItem from="1739566943629" duration="5254000" />
-      <workItem from="1739655824838" duration="1119000" />
+      <workItem from="1739655824838" duration="3043000" />
     </task>
     <servers />
   </component>
@@ -274,7 +271,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/client.rs</url>
-          <line>444</line>
+          <line>453</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
