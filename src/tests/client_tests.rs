@@ -88,7 +88,18 @@ mod tests {
 
         assert_eq!(tools.tools.is_empty(), false);
 
-        let response = client.call_tool("puppeteer_navigate".to_string(), Some(serde_json::json!({"url": "https://osnews.com"})));
+        let response = client.call_tool(
+            "puppeteer_navigate".to_string(),
+            Some(serde_json::json!({"url": "https://osnews.com"})));
+        if response.is_err() {
+            println!("Error: {}", response.unwrap_err());
+        } else {
+            println!("Response: {}", serde_json::to_string_pretty(&response.unwrap())?);
+        }
+
+        let response = client.call_tool(
+            "puppeteer_screenshot".to_string(),
+            Some(serde_json::json!({"name": "osnews_screenshot"})));
         if response.is_err() {
             println!("Error: {}", response.unwrap_err());
         } else {

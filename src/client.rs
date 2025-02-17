@@ -444,7 +444,7 @@ impl<T: Transport + 'static> McpClient<T> {
                 error,
             });
         }
-
+        println!("Tool Response: {:?}", response);
         let result = response.result.ok_or_else(|| McpError::MissingResult)?;
 
         Ok(serde_json::from_value(result)?)

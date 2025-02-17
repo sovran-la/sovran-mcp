@@ -190,7 +190,11 @@ pub enum ToolResponseContent {
     #[serde(rename = "text")]
     Text { text: String },
     #[serde(rename = "image")]
-    Image { data: String, mime_type: String },
+    Image {
+        data: String,
+        #[serde(rename = "mimeType")]
+        mime_type: String
+    },
     #[serde(rename = "resource")]
     Resource { resource: ResourceContents },
 }
@@ -204,7 +208,7 @@ pub enum ToolResponseContent {
 #[serde(rename_all = "camelCase")]
 pub struct ResourceContents {
     pub uri: Url,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "mimeType", skip_serializing_if = "Option::is_none")]
     pub mime_type: Option<String>,
 }
 
@@ -232,7 +236,7 @@ pub struct Resource {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "mimeType", skip_serializing_if = "Option::is_none")]
     pub mime_type: Option<String>,
 }
 
@@ -287,7 +291,7 @@ pub enum ResourceContent {
 pub struct TextResourceContents {
     pub uri: Url,
     pub text: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "mimeType", skip_serializing_if = "Option::is_none")]
     pub mime_type: Option<String>,
 }
 
@@ -296,7 +300,7 @@ pub struct TextResourceContents {
 pub struct BlobResourceContents {
     pub uri: Url,
     pub blob: String, // base64-encoded
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "mimeType", skip_serializing_if = "Option::is_none")]
     pub mime_type: Option<String>,
 }
 
