@@ -7,9 +7,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -192,12 +190,12 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Cargo.Test client_tests" />
+      <item itemvalue="Cargo.Test sovran-mcp" />
       <item itemvalue="Cargo.Doctest of client (line 14)" />
       <item itemvalue="Cargo.Doctest of client::execute (line 381)" />
       <item itemvalue="Cargo.Doctest of client::subscribe (line 1143)" />
-      <item itemvalue="Cargo.Test client_tests" />
       <item itemvalue="Cargo.Test client_tests::tests" />
-      <item itemvalue="Cargo.Test sovran-mcp" />
       <item itemvalue="Cargo.Test tests::client_tests::tests::test_puppeteer_compatibility" />
     </list>
     <recent_temporary>
@@ -263,6 +261,7 @@
       <workItem from="1739655824838" duration="4085000" />
       <workItem from="1739816640519" duration="2815000" />
       <workItem from="1739819531336" duration="13000" />
+      <workItem from="1739819656083" duration="2048000" />
     </task>
     <servers />
   </component>
