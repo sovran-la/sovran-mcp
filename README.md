@@ -32,7 +32,7 @@ fn main() -> Result<(), sovran_mcp::McpError> {
     // List available tools
     if client.supports_tools() {
         let tools = client.list_tools()?;
-        println!("Available tools: {}", tools.tools.len());
+        println!("Available tools: {:?}", tools);
         
         // Call a tool
         let response = client.call_tool(

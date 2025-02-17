@@ -354,7 +354,7 @@ impl<T: Transport + 'static> McpClient<T> {
         self.transport.send(&JsonRpcMessage::Request(request))?;
 
         // Wait for response with timeout but DON'T remove the pending request
-        match rx.recv_timeout(std::time::Duration::from_secs(2)) {
+        match rx.recv_timeout(std::time::Duration::from_secs(60)) {
             Ok(response) => {
                 // Only remove on success
                 let mut pending = self.pending_requests.lock().unwrap();

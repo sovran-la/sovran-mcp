@@ -33,6 +33,75 @@ mod tests {
     }
 
     #[test]
+    fn test_puppeteer_compatibility() -> Result<(), McpError> {
+        // Handler for LLM completion requests
+        struct MySamplingHandler;
+        impl SamplingHandler for MySamplingHandler {
+            fn handle_message(&self, _request: CreateMessageRequest) -> Result<CreateMessageResponse, McpError> {
+                // Process the completion request and return response
+                Ok(CreateMessageResponse {
+                    content: MessageContent::Text(TextContent {
+                        text: "AI response".to_string()
+                    }),
+                    model: "test-model".to_string(),
+                    role: Role::Assistant,
+                    stop_reason: Some("complete".to_string()),
+                    meta: None,
+                })
+            }
+        }
+
+        // Handler for server notifications
+        struct MyNotificationHandler;
+        impl NotificationHandler for MyNotificationHandler {
+            fn handle_resource_update(&self, uri: &Url) -> Result<(), McpError> {
+                println!("Resource updated: {}", uri);
+                // Let's try to read the resource when it updates
+                Ok(())
+            }
+            fn handle_initialized(&self) {
+                println!("Server initialized!");
+            }
+            fn handle_log_message(&self, level: &LogLevel, data: &Value, logger: &Option<String>) {
+                println!("Log message: {:?} {:?} {:?}", level, data, logger);
+            }
+            fn handle_progress_update(&self, token: &String, progress: &f64, total: &Option<f64>) {
+                println!("Progress update: {} {} {:?}", token, progress, total);
+            }
+            fn handle_list_changed(&self, method: &NotificationMethod) {
+                println!("List changed: {:?}", method);
+            }
+        }
+
+        let transport = StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-puppeteer"])?;
+        let mut client = McpClient::new(
+            transport,
+            Some(Box::new(MySamplingHandler)),
+            Some(Box::new(MyNotificationHandler))
+        );
+
+        client.start()?;
+
+        println!("Attempting list_tools...");
+        let tools = client.list_tools()?;
+        println!("Tools: {}", serde_json::to_string_pretty(&tools)?);
+
+        assert_eq!(tools.tools.is_empty(), false);
+
+        let response = client.call_tool("puppeteer_navigate".to_string(), Some(serde_json::json!({"url": "https://osnews.com"})));
+        if response.is_err() {
+            println!("Error: {}", response.unwrap_err());
+        } else {
+            println!("Response: {}", serde_json::to_string_pretty(&response.unwrap())?);
+        }
+
+        let result = client.read_resource(&Url::parse("console://logs")?)?;
+        println!("Logs: {}", serde_json::to_string_pretty(&result)?);
+
+        Ok(())
+    }
+
+    #[test]
     fn test_prompt_operations() -> Result<(), McpError> {
         println!("Starting prompt test");
         let mut client = create_test_client()?;
