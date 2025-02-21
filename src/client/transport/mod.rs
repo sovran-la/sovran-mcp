@@ -16,3 +16,5 @@ pub trait Transport: Send + Sync {
     /// Close the transport
     fn close(&self) -> Result<(), McpError>;
 }
+
+pub use stdio::StdioTransport;

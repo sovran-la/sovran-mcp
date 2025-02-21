@@ -1,6 +1,6 @@
 #[cfg(feature = "client")]
 use {
-    crate::transport::Transport,
+    crate::client::transport::Transport,
     crate::types::{McpError, NotificationHandler, SamplingHandler},
     std::collections::HashMap,
     std::sync::mpsc::Sender,

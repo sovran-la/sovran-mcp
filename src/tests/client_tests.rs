@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::{transport::StdioTransport, types::*, McpClient};
+    use crate::{client::transport::StdioTransport, types::*, McpClient};
     use base64::Engine;
     use serde_json::Value;
     use std::collections::HashMap;

@@ -1,4 +1,4 @@
-use crate::transport::Transport;
+use crate::client::transport::Transport;
 use crate::types::{JsonRpcMessage, McpError};
 use std::io::{self, BufRead, Read, Write};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};

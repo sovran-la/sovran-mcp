@@ -3,14 +3,17 @@
 use serde_json::json;
 use sovran_mcp::{
     client::McpClient,
-    transport::StdioTransport,
+    client::transport::StdioTransport,
     types::{McpError, ToolResponseContent},
 };
 
 #[test]
 fn test_macho_integration() -> Result<(), McpError> {
     // This spawns our example and handles stdin/stdout
-    let transport = StdioTransport::new("cargo", &["run", "--example", "macho-mcp", "--features", "server"])?;
+    let transport = StdioTransport::new(
+        "cargo",
+        &["run", "--example", "macho-mcp", "--features", "server"],
+    )?;
 
     let mut client = McpClient::new(transport, None, None);
     client.start()?;
@@ -19,7 +22,7 @@ fn test_macho_integration() -> Result<(), McpError> {
     let response = client.call_tool(
         "elbow-drop".into(),
         Some(json!({
-            "target": "Java",
+            "target": "Lil' Timmy",
             "intensity": 11
         })),
     )?;

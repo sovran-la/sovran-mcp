@@ -12,9 +12,9 @@
 //! Basic usage with stdio transport:
 //!
 //! ```
-//! use sovran_mcp::{McpClient, transport::StdioTransport};
+//! use sovran_mcp::{McpClient, client::StdioTransport};
 //!
-//! # fn main() -> Result<(), sovran_mcp::McpError> {
+//! fn main() -> Result<(), sovran_mcp::McpError> {
 //! // Create and start client
 //! let transport = StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?;
 //! let mut client = McpClient::new(transport, None, None);
@@ -45,7 +45,7 @@
 //!
 //! The client spawns a message handling thread for processing responses and notifications.
 //! This thread is properly managed through the `start()` and `stop()` methods.
-use crate::transport::Transport;
+use crate::client::transport::Transport;
 use crate::types::*;
 
 use std::collections::HashMap;
@@ -67,7 +67,8 @@ use url::Url;
 /// # Examples
 ///
 /// ```
-/// use sovran_mcp::{McpClient, transport::StdioTransport};
+/// use sovran_mcp::{McpClient, client::StdioTransport};
+/// use sovran_mcp::client::transport;
 ///
 /// // Create a client using stdio transport
 /// let transport = StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?;
@@ -118,7 +119,7 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// Basic client without handlers:
     /// ```
-    /// use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// use sovran_mcp::{McpClient, client::StdioTransport};
     ///
     /// let transport = StdioTransport::new("npx", &["-y", "server-name"])?;
     /// let client = McpClient::new(transport, None, None);
@@ -127,12 +128,12 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// Client with sampling and notification handlers:
     /// ```no_run
-    /// use sovran_mcp::{McpClient, transport::StdioTransport, types::*, McpError};
+    /// use sovran_mcp::{McpClient, client::StdioTransport, types::*, McpError};
     /// use std::sync::Arc;
     /// use serde_json::Value;
     /// use url::Url;    ///
     ///
-    /// use sovran_mcp::messaging::{LogLevel, NotificationMethod};
+    /// use sovran_mcp::types::{LogLevel, NotificationMethod};
     ///
     /// // Handler for LLM completion requests
     /// struct MySamplingHandler;
@@ -158,13 +159,13 @@ impl<T: Transport + 'static> McpClient<T> {
     ///         println!("Resource updated: {}", uri);
     ///         Ok(())
     ///     }
-    ///     fn handle_initialized(&self) {
-    ///         todo!()
-    ///     }
     ///     fn handle_log_message(&self, level: &LogLevel, data: &Value, logger: &Option<String>) {
     ///         todo!()
     ///     }
     ///     fn handle_progress_update(&self, token: &String, progress: &f64, total: &Option<f64>) {
+    ///         todo!()
+    ///     }
+    ///     fn handle_initialized(&self) {
     ///         todo!()
     ///     }
     ///     fn handle_list_changed(&self, method: &NotificationMethod) {
@@ -215,7 +216,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```no_run
-    /// use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// use sovran_mcp::{McpClient, client::StdioTransport};
     ///
     /// let transport = StdioTransport::new("npx", &["-y", "server-name"])?;
     /// let mut client = McpClient::new(transport, None, None);
@@ -290,7 +291,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::McpError};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport, types::McpError};
     /// # let transport = StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?;
     /// # let mut client = McpClient::new(transport, None, None);
     /// # client.start()?;
@@ -395,7 +396,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport, types::*};
     /// use serde::{Serialize, Deserialize};
     ///
     /// // Define a custom command
@@ -476,7 +477,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport, types::*};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -515,7 +516,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport, types::*};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -547,7 +548,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport, types::*};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -588,7 +589,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -616,7 +617,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -644,7 +645,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -670,7 +671,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -697,7 +698,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -747,7 +748,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -780,7 +781,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -825,7 +826,7 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// Simple tool call (echo):
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # use sovran_mcp::types::ToolResponseContent;
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
@@ -852,7 +853,7 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// Tool with numeric arguments:
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # use sovran_mcp::types::ToolResponseContent;
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
@@ -903,7 +904,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -958,7 +959,7 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// Simple prompt without arguments:
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # use sovran_mcp::types::Role;
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
@@ -981,7 +982,7 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// Prompt with arguments:
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # use std::collections::HashMap;
     /// # use sovran_mcp::types::PromptContent;
     /// # let mut client = McpClient::new(
@@ -1037,7 +1038,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -1082,7 +1083,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport};
     /// # use sovran_mcp::types::ResourceContent;
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
@@ -1141,7 +1142,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport, messaging::*, types::*, McpError};
+    /// # use sovran_mcp::{McpClient, client::StdioTransport, types::*, McpError};
     /// # use url::Url;
     /// # use std::sync::Arc;
     /// # use serde_json::Value;
