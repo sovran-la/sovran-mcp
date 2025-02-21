@@ -7,70 +7,73 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="" />
+    <list default="true" id="d03fc512-00ca-4153-ae0a-3cec402a9e58" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/client/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/server/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/server/server.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/types/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sovran-mcp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sovran-mcp.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/client.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/commands.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/errors.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/errors.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/messaging.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/messaging.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tests/client_tests.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/client_tests.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tests/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/transport/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/transport/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/transport/stdio.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/transport/stdio.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/protocol.rs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:test" />
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Rust File" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MacroExpansionManager">
-    <option name="directoryName" value="kgmhMMFi" />
+    <option name="directoryName" value="JC12CSpj" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 5
-}</component>
-  <component name="ProjectId" id="2sSDTnzB4ppfsvGcNFiHYLMhZab" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="2tMXuYbeUJk7hvYJyVT18h3wcB8" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Cargo.Doctest of client (line 14).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Doctest of client::execute (line 373).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Doctest of client::execute (line 381).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Doctest of client::get_prompt (line 960).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Doctest of client::new (line 134).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Doctest of client::subscribe (line 1143).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test client_tests.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test client_tests::tests.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test sovran-mcp.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test test_error_handling.executor&quot;: &quot;Debug&quot;,
-    &quot;Cargo.Test test_prompt_operations (1).executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test test_prompt_operations.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::client_tests::tests::test_fetch_compatibility.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::client_tests::tests::test_prompt_operations.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::client_tests::tests::test_puppeteer_compatibility.executor&quot;: &quot;Run&quot;,
-    &quot;Cargo.Test tests::client_tests::tests::test_resource_operations.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.rust.reset.selective.auto.import&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
-    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
-    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Cargo.Doctest of client::client::stop (line 292).executor": "Run",
+    "Cargo.Run macho-mcp.executor": "Run",
+    "Cargo.Test client_tests::tests.executor": "Run",
+    "Cargo.Test integration_test::tests.executor": "Run",
+    "Cargo.Test integration_tests.executor": "Run",
+    "Cargo.Test integration_tests::test_macho_integration.executor": "Run",
+    "Cargo.Test test_macho_integration.executor": "Run",
+    "Cargo.Test tests::client_tests::tests::test_fetch_compatibility.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.rust.reset.selective.auto.import": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
+    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RunManager" selected="Cargo.Test tests::client_tests::tests::test_puppeteer_compatibility">
-    <configuration name="Doctest of client (line 14)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --doc &quot;client\ (line\ 14)&quot;" />
+}]]></component>
+  <component name="RunManager" selected="Cargo.Test test_macho_integration">
+    <configuration name="Run macho-mcp" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="buildProfileId" value="dev" />
+      <option name="command" value="run --package sovran-mcp --example macho-mcp" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -86,8 +89,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Doctest of client::execute (line 381)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --doc &quot;client::execute\ (line\ 381)&quot;" />
+    <configuration name="Run release" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="buildProfileId" value="dev" />
+      <option name="command" value="run --package sovran-mcp --bin release" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -103,8 +107,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Doctest of client::subscribe (line 1143)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --doc &quot;client::subscribe\ (line\ 1143)&quot;" />
+    <configuration name="Test integration_test::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package sovran-mcp --test integration_test tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -120,8 +124,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test client_tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-      <option name="command" value="test --package sovran-mcp --test client_tests" />
+    <configuration name="Test integration_tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package sovran-mcp --test integration_test integration_tests" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -137,14 +141,14 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test client_tests::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --lib tests::client_tests::tests" />
+    <configuration name="Test integration_tests::test_macho_integration" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package sovran-mcp --test integration_test integration_tests::test_macho_integration -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
+      <option name="allFeatures" value="true" />
       <option name="withSudo" value="false" />
       <option name="buildTarget" value="REMOTE" />
       <option name="backtrace" value="SHORT" />
@@ -162,7 +166,7 @@
       <option name="emulateTerminal" value="true" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
+      <option name="allFeatures" value="true" />
       <option name="withSudo" value="false" />
       <option name="buildTarget" value="REMOTE" />
       <option name="backtrace" value="SHORT" />
@@ -172,8 +176,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test tests::client_tests::tests::test_puppeteer_compatibility" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --lib tests::client_tests::tests::test_puppeteer_compatibility -- --exact" />
+    <configuration name="Test test_macho_integration" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package sovran-mcp --test integration_test test_macho_integration -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -190,21 +194,21 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Cargo.Test client_tests" />
+      <item itemvalue="Cargo.Run release" />
       <item itemvalue="Cargo.Test sovran-mcp" />
-      <item itemvalue="Cargo.Doctest of client (line 14)" />
-      <item itemvalue="Cargo.Doctest of client::execute (line 381)" />
-      <item itemvalue="Cargo.Doctest of client::subscribe (line 1143)" />
-      <item itemvalue="Cargo.Test client_tests::tests" />
-      <item itemvalue="Cargo.Test tests::client_tests::tests::test_puppeteer_compatibility" />
+      <item itemvalue="Cargo.Run macho-mcp" />
+      <item itemvalue="Cargo.Test integration_test::tests" />
+      <item itemvalue="Cargo.Test integration_tests" />
+      <item itemvalue="Cargo.Test integration_tests::test_macho_integration" />
+      <item itemvalue="Cargo.Test test_macho_integration" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Test tests::client_tests::tests::test_puppeteer_compatibility" />
-        <item itemvalue="Cargo.Doctest of client::subscribe (line 1143)" />
-        <item itemvalue="Cargo.Doctest of client::execute (line 381)" />
-        <item itemvalue="Cargo.Doctest of client (line 14)" />
-        <item itemvalue="Cargo.Test client_tests::tests" />
+        <item itemvalue="Cargo.Test test_macho_integration" />
+        <item itemvalue="Cargo.Run macho-mcp" />
+        <item itemvalue="Cargo.Test integration_test::tests" />
+        <item itemvalue="Cargo.Test integration_tests" />
+        <item itemvalue="Cargo.Test integration_tests::test_macho_integration" />
       </list>
     </recent_temporary>
   </component>
@@ -214,54 +218,12 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="0a1d7b1b-1026-46df-89a7-3421e4918a3a" name="Changes" comment="" />
-      <created>1738440092544</created>
+      <changelist id="d03fc512-00ca-4153-ae0a-3cec402a9e58" name="Changes" comment="" />
+      <created>1740163140246</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1738440092544</updated>
-      <workItem from="1738440093591" duration="85000" />
-      <workItem from="1738440183681" duration="294000" />
-      <workItem from="1738440564459" duration="1402000" />
-      <workItem from="1738441974305" duration="664000" />
-      <workItem from="1738442645484" duration="25000" />
-      <workItem from="1738442675387" duration="44000" />
-      <workItem from="1738442734673" duration="4619000" />
-      <workItem from="1739052486729" duration="624000" />
-      <workItem from="1739120218211" duration="467000" />
-      <workItem from="1739120690042" duration="160000" />
-      <workItem from="1739120855026" duration="294000" />
-      <workItem from="1739121155232" duration="1026000" />
-      <workItem from="1739122188205" duration="30000" />
-      <workItem from="1739122289206" duration="207000" />
-      <workItem from="1739122500255" duration="37000" />
-      <workItem from="1739122543073" duration="63000" />
-      <workItem from="1739122609966" duration="287000" />
-      <workItem from="1739122902219" duration="239000" />
-      <workItem from="1739123147929" duration="468000" />
-      <workItem from="1739123620846" duration="25000" />
-      <workItem from="1739123820040" duration="257000" />
-      <workItem from="1739124081762" duration="42000" />
-      <workItem from="1739124127350" duration="357000" />
-      <workItem from="1739124488796" duration="30000" />
-      <workItem from="1739124551033" duration="1731000" />
-      <workItem from="1739126288532" duration="27000" />
-      <workItem from="1739126323023" duration="286000" />
-      <workItem from="1739126613232" duration="398000" />
-      <workItem from="1739127016111" duration="32000" />
-      <workItem from="1739127053027" duration="19000" />
-      <workItem from="1739127076273" duration="24000" />
-      <workItem from="1739127105796" duration="13000" />
-      <workItem from="1739127122482" duration="12000" />
-      <workItem from="1739127139081" duration="705000" />
-      <workItem from="1739382885558" duration="434000" />
-      <workItem from="1739383328948" duration="117000" />
-      <workItem from="1739383450517" duration="124000" />
-      <workItem from="1739383578466" duration="11883000" />
-      <workItem from="1739566943629" duration="5254000" />
-      <workItem from="1739655824838" duration="4085000" />
-      <workItem from="1739816640519" duration="2815000" />
-      <workItem from="1739819531336" duration="13000" />
-      <workItem from="1739819656083" duration="2048000" />
+      <updated>1740163140246</updated>
+      <workItem from="1740163141277" duration="5410000" />
     </task>
     <servers />
   </component>
@@ -273,7 +235,17 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/tests/client_tests.rs</url>
-          <line>40</line>
+          <line>21</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/tests/client_tests.rs</url>
+          <line>29</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/client/client.rs</url>
+          <line>441</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>

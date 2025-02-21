@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::messaging::{LogLevel, NotificationMethod};
-    use crate::{transport::StdioTransport, types::*, McpClient, McpError};
+    use crate::{transport::StdioTransport, types::*, McpClient};
     use base64::Engine;
     use serde_json::Value;
     use std::collections::HashMap;
@@ -28,7 +27,7 @@ mod tests {
         let tools = client.list_tools()?;
 
         assert_eq!(tools.tools.is_empty(), false);
-
+        client.stop()?;
         Ok(())
     }
 
@@ -37,11 +36,14 @@ mod tests {
         // Handler for LLM completion requests
         struct MySamplingHandler;
         impl SamplingHandler for MySamplingHandler {
-            fn handle_message(&self, _request: CreateMessageRequest) -> Result<CreateMessageResponse, McpError> {
+            fn handle_message(
+                &self,
+                _request: CreateMessageRequest,
+            ) -> Result<CreateMessageResponse, McpError> {
                 // Process the completion request and return response
                 Ok(CreateMessageResponse {
                     content: MessageContent::Text(TextContent {
-                        text: "AI response".to_string()
+                        text: "AI response".to_string(),
                     }),
                     model: "test-model".to_string(),
                     role: Role::Assistant,
@@ -73,11 +75,12 @@ mod tests {
             }
         }
 
-        let transport = StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-puppeteer"])?;
+        let transport =
+            StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-puppeteer"])?;
         let mut client = McpClient::new(
             transport,
             Some(Box::new(MySamplingHandler)),
-            Some(Box::new(MyNotificationHandler))
+            Some(Box::new(MyNotificationHandler)),
         );
 
         client.start()?;
@@ -90,20 +93,28 @@ mod tests {
 
         let response = client.call_tool(
             "puppeteer_navigate".to_string(),
-            Some(serde_json::json!({"url": "https://osnews.com"})));
+            Some(serde_json::json!({"url": "https://osnews.com"})),
+        );
         if response.is_err() {
             println!("Error: {}", response.unwrap_err());
         } else {
-            println!("Response: {}", serde_json::to_string_pretty(&response.unwrap())?);
+            println!(
+                "Response: {}",
+                serde_json::to_string_pretty(&response.unwrap())?
+            );
         }
 
         let response = client.call_tool(
             "puppeteer_screenshot".to_string(),
-            Some(serde_json::json!({"name": "osnews_screenshot"})));
+            Some(serde_json::json!({"name": "osnews_screenshot"})),
+        );
         if response.is_err() {
             println!("Error: {}", response.unwrap_err());
         } else {
-            println!("Response: {}", serde_json::to_string_pretty(&response.unwrap())?);
+            println!(
+                "Response: {}",
+                serde_json::to_string_pretty(&response.unwrap())?
+            );
         }
 
         let result = client.read_resource(&Url::parse("console://logs")?)?;

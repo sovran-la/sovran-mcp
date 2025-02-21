@@ -6,6 +6,7 @@ use crate::types::{
     ReadResourceResponse, SubscribeRequest, UnsubscribeRequest,
 };
 use crate::types::{CreateMessageRequest, CreateMessageResponse, EmptyResult};
+use crate::types::{ShutdownRequest, ShutdownResponse};
 use serde::{Deserialize, Serialize};
 
 pub trait McpCommand {
@@ -20,6 +21,14 @@ impl McpCommand for Initialize {
     const COMMAND: &'static str = "initialize";
     type Request = InitializeRequest;
     type Response = InitializeResponse;
+}
+
+#[derive(Debug, Clone)]
+pub struct Shutdown;
+impl McpCommand for Shutdown {
+    const COMMAND: &'static str = "shutdown";
+    type Request = ShutdownRequest;
+    type Response = ShutdownResponse;
 }
 
 #[derive(Debug, Clone)]

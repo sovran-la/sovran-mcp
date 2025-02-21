@@ -1,4 +1,4 @@
-use crate::messaging::{JsonRpcError, JsonRpcResponse};
+use crate::types::{JsonRpcError, JsonRpcResponse};
 use std::error::Error as StdError;
 use std::fmt;
 use thiserror::Error;
@@ -55,9 +55,22 @@ pub enum McpError {
     #[error("Terminating the client thread failed.")]
     ThreadJoinFailed,
 
+    // Server errors
+    #[error("Unknown tool: {0}")]
+    UnknownTool(String),
+
+    #[error("Duplicate tool: {0}")]
+    DuplicateTool(String),
+
+    #[error("Invalid arguments: {0}")]
+    InvalidArguments(String),
+
     // Other Errors
     #[error("{0}")]
     Other(String),
+
+    #[error("MCP Server Shutdown")]
+    ServerShutdown,
 }
 
 impl fmt::Display for JsonRpcError {
@@ -67,3 +80,9 @@ impl fmt::Display for JsonRpcError {
 }
 
 impl StdError for JsonRpcError {}
+
+impl McpError {
+    pub fn is_shutdown(&self) -> bool {
+        matches!(self, McpError::ServerShutdown)
+    }
+}

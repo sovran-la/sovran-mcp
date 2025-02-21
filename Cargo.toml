@@ -10,6 +10,16 @@ readme = "README.md"
 keywords = ["mcp", "ai", "anthropic", "claude", "llm"]
 categories = ["api-bindings"]
 
+[lib]
+name = "sovran_mcp"
+path = "src/lib.rs"
+
+[features]
+client = []
+server = []
+default = []
+test-all = ["server", "client"]
+
 [dependencies]
 serde = { version = "1.0.217", features = ["derive"] }
 url = { version = "2.5", features = ["serde"] }
@@ -23,3 +33,12 @@ toml_edit = "0.22"
 [[bin]]
 name = "release"
 path = "tools/release.rs"
+
+[[example]]
+name = "macho-mcp"
+path = "examples/macho-mcp/src/main.rs"
+required-features = ["server"]
+
+[[test]]
+name = "integration_test"
+required-features = ["client"]

@@ -45,16 +45,9 @@
 //!
 //! The client spawns a message handling thread for processing responses and notifications.
 //! This thread is properly managed through the `start()` and `stop()` methods.
-use crate::commands::{
-    CallTool, GetPrompt, Initialize, ListPrompts, ListResources, ListTools, McpCommand,
-    ReadResource, Subscribe, Unsubscribe,
-};
-use crate::messaging::{
-    JsonRpcMessage, JsonRpcNotification, JsonRpcRequest, JsonRpcResponse, MessageHandler,
-};
 use crate::transport::Transport;
 use crate::types::*;
-use crate::McpError;
+
 use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::{channel, Sender};
@@ -297,7 +290,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::McpError};
     /// # let transport = StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?;
     /// # let mut client = McpClient::new(transport, None, None);
     /// # client.start()?;
@@ -305,15 +298,23 @@ impl<T: Transport + 'static> McpClient<T> {
     ///
     /// // Clean up when done
     /// client.stop()?;
-    /// # Ok::<(), sovran_mcp::McpError>(())
+    /// # Ok::<(), McpError>(())
     /// ```
     pub fn stop(&mut self) -> Result<(), McpError> {
         // Signal the thread to stop
         self.stop_flag.store(true, Ordering::SeqCst);
 
-        // send a dummy command to generate an error which will
-        // unblock any pending receive.
-        _ = self.request("__internal/server_stop", None)?;
+        // Send shutdown request without waiting for response
+        let request = JsonRpcRequest {
+            id: self.request_id.fetch_add(1, Ordering::SeqCst),
+            method: Shutdown::COMMAND.to_string(),
+            params: Some(serde_json::to_value(ShutdownRequest::default())?),
+            jsonrpc: Default::default(),
+        };
+        let _ = self.transport.send(&JsonRpcMessage::Request(request));
+
+        // Give server a moment to handle shutdown
+        thread::sleep(std::time::Duration::from_secs(2));
 
         // Kill the transport
         self.transport.close()?;
@@ -394,7 +395,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport, McpCommand};
+    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*};
     /// use serde::{Serialize, Deserialize};
     ///
     /// // Define a custom command
@@ -431,7 +432,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// let response = client.execute::<MyCommand>(request)?;
     /// println!("Got result: {}", response.result);
     /// # client.stop()?;
-    /// # Ok::<(), sovran_mcp::McpError>(())
+    /// # Ok::<(), McpError>(())
     /// ```
     pub fn execute<C: McpCommand>(&self, request: C::Request) -> Result<C::Response, McpError> {
         debug!("Executing command: {}", C::COMMAND); // Add this
@@ -475,7 +476,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -494,7 +495,7 @@ impl<T: Transport + 'static> McpClient<T> {
     ///     println!("Server supports resources with subscribe: {:?}",
     ///         resources.subscribe);
     /// }
-    /// # Ok::<(), sovran_mcp::McpError>(())
+    /// # Ok::<(), McpError>(())
     /// ```
     pub fn server_capabilities(&self) -> Result<ServerCapabilities, McpError> {
         self.server_info
@@ -514,7 +515,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -523,7 +524,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # client.start()?;
     /// let version = client.server_version()?;
     /// println!("Server supports MCP version: {}", version);
-    /// # Ok::<(), sovran_mcp::McpError>(())
+    /// # Ok::<(), McpError>(())
     /// ```
     pub fn server_version(&self) -> Result<String, McpError> {
         self.server_info
@@ -546,7 +547,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// # Examples
     ///
     /// ```
-    /// # use sovran_mcp::{McpClient, transport::StdioTransport};
+    /// # use sovran_mcp::{McpClient, transport::StdioTransport, types::*};
     /// # let mut client = McpClient::new(
     /// #     StdioTransport::new("npx", &["-y", "@modelcontextprotocol/server-everything"])?,
     /// #     None,
@@ -562,7 +563,7 @@ impl<T: Transport + 'static> McpClient<T> {
     /// });
     ///
     /// println!("Prompt notifications supported: {}", has_prompt_notifications);
-    /// # Ok::<(), sovran_mcp::McpError>(())
+    /// # Ok::<(), McpError>(())
     /// ```
     pub fn has_capability<F>(&self, check: F) -> bool
     where

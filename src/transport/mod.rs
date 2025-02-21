@@ -1,6 +1,5 @@
 mod stdio;
-use crate::messaging::JsonRpcMessage;
-use crate::McpError;
+use crate::types::{JsonRpcMessage, McpError};
 pub use stdio::*;
 
 /// Basic transport trait for sending/receiving messages

@@ -1,13 +1,16 @@
-use crate::transport::Transport;
-use crate::types::*;
-use crate::McpError;
+#[cfg(feature = "client")]
+use {
+    crate::transport::Transport,
+    crate::types::{McpError, NotificationHandler, SamplingHandler},
+    std::collections::HashMap,
+    std::sync::mpsc::Sender,
+    std::sync::{Arc, Mutex},
+    tracing::{debug, warn},
+    url::Url,
+};
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::collections::HashMap;
-use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex};
-use tracing::{debug, warn};
-use url::Url;
 
 //
 // Core JSON-RPC Types
@@ -220,7 +223,7 @@ impl JsonRpcNotification {
 // Message Handler
 // Implementation of the MCP message handling system
 //
-
+#[cfg(feature = "client")]
 pub struct MessageHandler<T: Transport + 'static> {
     transport: Arc<T>,
     pending_requests: Arc<Mutex<HashMap<u64, Sender<JsonRpcResponse>>>>,
@@ -228,6 +231,7 @@ pub struct MessageHandler<T: Transport + 'static> {
     notification_handler: Option<Arc<Box<dyn NotificationHandler + Send>>>,
 }
 
+#[cfg(feature = "client")]
 impl<T: Transport + 'static> MessageHandler<T> {
     pub fn new(
         transport: Arc<T>,

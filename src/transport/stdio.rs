@@ -1,6 +1,5 @@
-use crate::messaging::JsonRpcMessage;
 use crate::transport::Transport;
-use crate::McpError;
+use crate::types::{JsonRpcMessage, McpError};
 use std::io::{self, BufRead, Read, Write};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
 use std::sync::{Arc, Mutex};

@@ -1,5 +1,4 @@
-use crate::messaging::{LogLevel, NotificationMethod};
-use crate::McpError;
+use crate::types::{LogLevel, McpError, NotificationMethod};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -61,13 +60,21 @@ pub struct InitializeResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
+pub struct ShutdownRequest {
+    // empty on purpose
+}
+
+pub type ShutdownResponse = EmptyResult;
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct ServerCapabilities {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<serde_json::Value>,
+    pub tools: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub experimental: Option<serde_json::Value>,
+    pub experimental: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub logging: Option<serde_json::Value>,
+    pub logging: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompts: Option<PromptCapabilities>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -78,9 +85,9 @@ pub struct ServerCapabilities {
 #[serde(rename_all = "camelCase")]
 pub struct ClientCapabilities {
     #[serde(default)]
-    pub experimental: HashMap<String, serde_json::Value>,
+    pub experimental: HashMap<String, Value>,
     #[serde(default)]
-    pub sampling: HashMap<String, serde_json::Value>,
+    pub sampling: HashMap<String, Value>,
     #[serde(default)]
     pub roots: RootCapabilities,
 }
@@ -142,7 +149,7 @@ pub struct ToolDefinition {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    pub input_schema: serde_json::Value,
+    pub input_schema: Value,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -151,7 +158,7 @@ pub struct ListToolsRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cursor: Option<String>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<serde_json::Value>,
+    pub meta: Option<Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -161,7 +168,7 @@ pub struct ListToolsResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_cursor: Option<String>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<serde_json::Value>,
+    pub meta: Option<Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -169,9 +176,9 @@ pub struct ListToolsResponse {
 pub struct CallToolRequest {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arguments: Option<serde_json::Value>,
+    pub arguments: Option<Value>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<serde_json::Value>,
+    pub meta: Option<Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -181,7 +188,7 @@ pub struct CallToolResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_error: Option<bool>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<serde_json::Value>,
+    pub meta: Option<Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -193,7 +200,7 @@ pub enum ToolResponseContent {
     Image {
         data: String,
         #[serde(rename = "mimeType")]
-        mime_type: String
+        mime_type: String,
     },
     #[serde(rename = "resource")]
     Resource { resource: ResourceContents },
@@ -226,7 +233,7 @@ pub struct ListResourcesResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_cursor: Option<String>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<HashMap<String, serde_json::Value>>,
+    pub meta: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -251,7 +258,7 @@ pub struct ReadResourceRequest {
 pub struct ReadResourceResponse {
     pub contents: Vec<ResourceContent>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<HashMap<String, serde_json::Value>>,
+    pub meta: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -276,7 +283,7 @@ pub struct ResourceUpdatedNotification {
 #[serde(rename_all = "camelCase")]
 pub struct EmptyResult {
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<HashMap<String, serde_json::Value>>,
+    pub meta: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -315,7 +322,7 @@ pub struct ListPromptsRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cursor: Option<String>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<HashMap<String, serde_json::Value>>,
+    pub meta: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -325,7 +332,7 @@ pub struct ListPromptsResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_cursor: Option<String>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<HashMap<String, serde_json::Value>>,
+    pub meta: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -363,7 +370,7 @@ pub struct GetPromptResponse {
     pub description: Option<String>,
     pub messages: Vec<PromptMessage>,
     #[serde(rename = "_meta", skip_serializing_if = "Option::is_none")]
-    pub meta: Option<HashMap<String, serde_json::Value>>,
+    pub meta: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -424,7 +431,7 @@ pub struct CreateMessageRequest {
     pub include_context: String,
     pub model_preferences: Option<ModelPreferences>,
     #[serde(rename = "_meta")]
-    pub meta: Option<HashMap<String, serde_json::Value>>,
+    pub meta: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -436,7 +443,7 @@ pub struct CreateMessageResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop_reason: Option<String>,
     #[serde(rename = "_meta")]
-    pub meta: Option<HashMap<String, serde_json::Value>>,
+    pub meta: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -539,7 +546,7 @@ impl PromptContent {
         output
     }
 
-    fn build_example(&self, schema: &serde_json::Value, output: &mut String, depth: usize) {
+    fn build_example(&self, schema: &Value, output: &mut String, depth: usize) {
         let indent = "    ".repeat(depth);
 
         if let Some(props) = schema.get("properties").and_then(|v| v.as_object()) {
@@ -567,7 +574,7 @@ impl PromptContent {
         }
     }
 
-    fn write_type_example(&self, schema: &serde_json::Value, output: &mut String, depth: usize) {
+    fn write_type_example(&self, schema: &Value, output: &mut String, depth: usize) {
         let type_name = schema.get("type").and_then(|t| t.as_str()).unwrap_or("any");
 
         match type_name {
