@@ -13,6 +13,7 @@ pub trait CommandHandler<CMD: McpCommand, CTX>: Send + Sync {
         &self,
         request: CMD::Request,
         server: &mut McpServer<CTX>,
+        context: &mut CTX,
     ) -> Result<CMD::Response, McpError>;
 }
 
@@ -31,11 +32,12 @@ impl DefaultInitializeHandler {
     }
 }
 
-impl<CTX> CommandHandler<Initialize, CTX> for DefaultInitializeHandler {
+impl<CTX: Send + Sync + 'static> CommandHandler<Initialize, CTX> for DefaultInitializeHandler {
     fn handle(
         &self,
-        _request: InitializeRequest,
-        _server: &mut McpServer<CTX>,
+        request: InitializeRequest,
+        server: &mut McpServer<CTX>,
+        _context: &mut CTX,  // Unused but required by trait
     ) -> Result<InitializeResponse, McpError> {
         Ok(InitializeResponse {
             protocol_version: LATEST_PROTOCOL_VERSION.to_string(),
@@ -52,36 +54,27 @@ impl<CTX> CommandHandler<Initialize, CTX> for DefaultInitializeHandler {
 }
 
 pub struct DefaultShutdownHandler;
-impl<CTX> CommandHandler<Shutdown, CTX> for DefaultShutdownHandler {
+impl<CTX: Send + Sync + 'static> CommandHandler<Shutdown, CTX> for DefaultShutdownHandler {
     fn handle(
         &self,
         _request: ShutdownRequest,
         _server: &mut McpServer<CTX>,
+        _context: &mut CTX,  // Unused but required by trait
     ) -> Result<ShutdownResponse, McpError> {
-        // do nothing
         Ok(ShutdownResponse { meta: None })
     }
 }
 
 pub struct DefaultListToolsHandler;
-impl<CTX> CommandHandler<ListTools, CTX> for DefaultListToolsHandler {
+impl<CTX: Send + Sync + 'static> CommandHandler<ListTools, CTX> for DefaultListToolsHandler {
     fn handle(
         &self,
-        _request: ListToolsRequest,
+        request: ListToolsRequest,
         server: &mut McpServer<CTX>,
+        _context: &mut CTX,  // Unused but required by trait
     ) -> Result<ListToolsResponse, McpError> {
-        let tools = server
-            .tools
-            .values()
-            .map(|tool| ToolDefinition {
-                name: tool.name().to_string(),
-                description: Some(tool.description().to_string()),
-                input_schema: tool.schema(),
-            })
-            .collect();
-
         Ok(ListToolsResponse {
-            tools,
+            tools: server.tool_definitions(),
             next_cursor: None,
             meta: None,
         })
@@ -89,34 +82,17 @@ impl<CTX> CommandHandler<ListTools, CTX> for DefaultListToolsHandler {
 }
 
 pub struct DefaultCallToolHandler;
-impl<CTX> CommandHandler<CallTool, CTX> for DefaultCallToolHandler {
+impl<CTX: Send + Sync + 'static> CommandHandler<CallTool, CTX> for DefaultCallToolHandler {
     fn handle(
         &self,
         request: CallToolRequest,
         server: &mut McpServer<CTX>,
+        context: &mut CTX
     ) -> Result<CallToolResponse, McpError> {
-        // CERTIFIED UNSAFE ZONE™
-        // We need to get around the borrow checker here because we need to:
-        // 1. Look up the tool (immutable borrow)
-        // 2. Then call it with mutable context and server references
-        let server_ptr = server as *mut McpServer<CTX>;
-
-        let tool = server
-            .tools
-            .get(&request.name)
-            .ok_or_else(|| McpError::UnknownTool(request.name.clone()))?;
-
-        // This is safe because:
-        // 1. We know the server exists (we have a reference)
-        // 2. We know no one else has access (we control all server access)
-        // 3. The pointer can't outlive the server (scoped to this function)
-        unsafe {
-            let context = &mut (*server_ptr).context;
-            tool.execute(
-                request.arguments.unwrap_or(json!({})),
-                context,
-                &mut *server_ptr,
-            )
-        }
+        server.execute_tool(
+            &request.name,
+            request.arguments.unwrap_or(json!({})),
+            context
+        )
     }
 }

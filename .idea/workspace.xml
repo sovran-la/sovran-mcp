@@ -8,19 +8,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d03fc512-00ca-4153-ae0a-3cec402a9e58" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/server/handlers.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/server/transport/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/server/transport/stdio.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/client.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/client.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/macho-mcp/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/macho-mcp/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/handlers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/handlers.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/server.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/server.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tests/client_tests.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/client_tests.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/transport/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/transport/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/transport/stdio.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/transport/stdio.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/messaging.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/messaging.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/integration_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration_test.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -82,7 +73,7 @@
       <recent name="$PROJECT_DIR$/src/client" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test client_tests::tests">
+  <component name="RunManager" selected="Cargo.Test test_macho_integration">
     <configuration name="Run macho-mcp" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="dev" />
       <option name="command" value="run --package sovran-mcp --example macho-mcp" />
@@ -217,9 +208,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Test client_tests::tests" />
         <item itemvalue="Cargo.Test test_macho_integration" />
         <item itemvalue="Cargo.Run macho-mcp" />
+        <item itemvalue="Cargo.Test client_tests::tests" />
         <item itemvalue="Cargo.Test integration_test::tests" />
         <item itemvalue="Cargo.Test integration_tests" />
       </list>
@@ -236,7 +227,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1740163140246</updated>
-      <workItem from="1740163141277" duration="8987000" />
+      <workItem from="1740163141277" duration="21408000" />
     </task>
     <servers />
   </component>
@@ -255,11 +246,6 @@
           <url>file://$PROJECT_DIR$/src/tests/client_tests.rs</url>
           <line>29</line>
           <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/client/client.rs</url>
-          <line>444</line>
-          <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

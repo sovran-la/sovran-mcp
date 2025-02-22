@@ -8,6 +8,7 @@
 };*/
 use serde_json::{json, Value};
 use sovran_mcp::server::{McpServer, McpTool};
+use sovran_mcp::server::server::McpToolServer;
 use sovran_mcp::types::{
     CallToolResponse, JsonRpcNotification, LogLevel, McpError, ToolResponseContent,
 };
@@ -68,7 +69,7 @@ impl McpTool<MachoContext> for ElbowDropTool {
         &self,
         args: Value,
         context: &mut MachoContext,
-        server: &mut McpServer<MachoContext>,
+        server: &McpToolServer,
     ) -> Result<CallToolResponse, McpError> {
         let target = args.get("target").and_then(|v| v.as_str()).ok_or_else(|| {
             McpError::InvalidArguments("WHO AM I SUPPOSED TO DROP BROTHER?!".into())
@@ -110,11 +111,11 @@ fn main() -> Result<(), McpError> {
     eprintln!("MACHO MCP SERVER IS READY TO SNAP INTO IT! OHHH YEAHHH!");
 
     let context = MachoContext::default();
-    let mut server = McpServer::new("macho-mcp", "1.0.0", context);
+    let mut server = McpServer::new("macho-mcp", "1.0.0");
 
     // Add our sweet elbow drop tool
     server.add_tool(ElbowDropTool)?;
 
     // Start the server - this handles all the stdin/stdout stuff for us!
-    server.start()
+    server.start(context)
 }

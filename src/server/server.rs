@@ -4,10 +4,26 @@ use crate::types::*;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tracing::{debug, warn};
 
 /// Core tool interface
+
+pub struct McpToolServer {
+    transport: Arc<Mutex<Box<dyn ServerTransport>>>,
+}
+
+impl McpToolServer {
+    fn new(transport: Arc<Mutex<Box<dyn ServerTransport>>>) -> Self {
+        Self { transport }
+    }
+
+    pub fn send_notification(&self, notification: JsonRpcNotification) -> Result<(), McpError> {
+        let mut transport = self.transport.lock().unwrap();
+        transport.write_message(&JsonRpcMessage::Notification(notification))
+    }
+}
+
 pub trait McpTool<CTX>: Send + Sync {
     fn name(&self) -> &str;
     fn description(&self) -> &str;
@@ -16,7 +32,7 @@ pub trait McpTool<CTX>: Send + Sync {
         &self,
         args: Value,
         context: &mut CTX,
-        server: &mut McpServer<CTX>,
+        tool_server: &McpToolServer,
     ) -> Result<CallToolResponse, McpError>;
 }
 
@@ -24,21 +40,19 @@ pub trait McpTool<CTX>: Send + Sync {
 pub struct McpServer<CTX> {
     name: String,
     version: String,
-    transport: Box<dyn ServerTransport>,
-    pub tools: HashMap<String, Box<dyn McpTool<CTX>>>,
+    transport: Arc<Mutex<Box<dyn ServerTransport>>>,
+    tools: HashMap<String, Box<dyn McpTool<CTX>>>,
     handlers: HashMap<&'static str, HandlerFn<CTX>>,
-    pub(crate) context: CTX,
 }
 
 impl<CTX: Send + Sync + 'static> McpServer<CTX> {
-    pub fn new(name: impl Into<String>, version: impl Into<String>, context: CTX) -> Self {
-        Self::with_transport(name, version, context, StdioServerTransport::new())
+    pub fn new(name: impl Into<String>, version: impl Into<String>) -> Self {
+        Self::with_transport(name, version, StdioServerTransport::new())
     }
 
     pub fn with_transport(
         name: impl Into<String>,
         version: impl Into<String>,
-        context: CTX,
         transport: impl ServerTransport + 'static,
     ) -> Self {
         let name = name.into();
@@ -47,10 +61,9 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
         let mut server = Self {
             name: name.clone(),
             version: version.clone(),
-            transport: Box::new(transport),
+            transport: Arc::new(Mutex::new(Box::new(transport))),
             tools: HashMap::new(),
             handlers: HashMap::new(),
-            context,
         };
 
         // Set up default handlers
@@ -70,13 +83,36 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
         H: CommandHandler<CMD, CTX> + Send + Sync + 'static,
     {
         let handler = Arc::new(handler);
-        let handler_fn = HandlerFn::new(move |params, server| {
+        let handler_fn = HandlerFn::new(move |params, server, context| {
             let request: CMD::Request = serde_json::from_value(params)?;
-            let response = handler.handle(request, server)?;
+            let response = handler.handle(request, server, context)?;
             Ok(serde_json::to_value(response)?)
         });
 
         self.handlers.insert(CMD::COMMAND, handler_fn);
+    }
+
+    pub fn execute_tool(&mut self, name: &str, args: Value, context: &mut CTX) -> Result<CallToolResponse, McpError> {
+        let tool = self.tools
+            .get(name)
+            .ok_or_else(|| McpError::UnknownTool(name.to_string()))?;
+
+        // Create tool server with cloned Arc to transport
+        let tool_server = McpToolServer::new(Arc::clone(&self.transport));
+
+        // Execute with tool server
+        tool.execute(args, context, &tool_server)
+    }
+
+    pub fn tool_definitions(&self) -> Vec<ToolDefinition> {
+        self.tools
+            .values()
+            .map(|tool| ToolDefinition {
+                name: tool.name().to_string(),
+                description: Some(tool.description().to_string()),
+                input_schema: tool.schema(),
+            })
+            .collect()
     }
 
     pub fn add_tool<Tool>(&mut self, tool: Tool) -> Result<(), McpError>
@@ -92,28 +128,26 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
         Ok(())
     }
 
-    pub fn context(&self) -> &CTX {
-        &self.context
-    }
-
-    pub fn context_mut(&mut self) -> &mut CTX {
-        &mut self.context
-    }
-
-    pub fn start(&mut self) -> ! {
+    pub fn start(&mut self, mut context: CTX) -> ! {
         eprintln!(
             "MCP Server `{}` started, version {}",
             self.name, self.version
         );
         let result: Result<(), McpError> = loop {
-            match self.transport.read_message() {
+            // Lock transport for reading
+            let message = {
+                let mut transport = self.transport.lock().unwrap();
+                transport.read_message()
+            };
+
+            match message {
                 Ok(message) => {
                     debug!("Received message: {:?}", message);
                     match message {
                         JsonRpcMessage::Request(request) => {
-                            if let Err(e) = self.handle_request(request) {
+                            if let Err(e) = self.handle_request(request, &mut context) {
                                 if e.is_shutdown() {
-                                    std::process::exit(0); // Clean shutdown
+                                    std::process::exit(0);
                                 }
                                 break Err(e);
                             }
@@ -144,11 +178,14 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
         std::process::exit(0);
     }
 
-    fn handle_request(&mut self, request: JsonRpcRequest) -> Result<(), McpError> {
-        let self_ptr = self as *mut McpServer<CTX>;
+    fn handle_request(&mut self, request: JsonRpcRequest, context: &mut CTX) -> Result<(), McpError> {
+        // Clone the handler function if it exists
+        let handler = (&self.handlers
+            .get(request.method.as_str()))
+            .cloned();  // Clone the Arc<HandlerFn>
 
-        let response = if let Some(handler) = self.handlers.get(request.method.as_str()) {
-            match unsafe { handler.handle(request.params.unwrap_or(json!({})), &mut *self_ptr) } {
+        let response = if let Some(handler) = handler {
+            match handler.handle(request.params.unwrap_or(json!({})), self, context) {
                 Ok(result) => JsonRpcResponse {
                     id: request.id,
                     result: Some(result),
@@ -179,8 +216,8 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
             }
         };
 
-        self.transport
-            .write_message(&JsonRpcMessage::Response(response))?;
+        let mut transport = self.transport.lock().unwrap();
+        transport.write_message(&JsonRpcMessage::Response(response))?;
         Ok(())
     }
 
@@ -190,28 +227,36 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
     }
 
     pub fn send_notification(&mut self, notification: JsonRpcNotification) -> Result<(), McpError> {
-        self.transport
-            .write_message(&JsonRpcMessage::Notification(notification))
+        let mut transport = self.transport.lock().unwrap();
+        transport.write_message(&JsonRpcMessage::Notification(notification))
     }
 }
 
 // Handler function type for type-erased command handling
 struct HandlerFn<CTX> {
-    handle_fn: Box<dyn Fn(Value, &mut McpServer<CTX>) -> Result<Value, McpError> + Send + Sync>,
+    handle_fn: Arc<dyn Fn(Value, &mut McpServer<CTX>, &mut CTX) -> Result<Value, McpError> + Send + Sync>,
 }
 
 impl<CTX> HandlerFn<CTX> {
     fn new<F>(f: F) -> Self
     where
-        F: Fn(Value, &mut McpServer<CTX>) -> Result<Value, McpError> + Send + Sync + 'static,
+        F: Fn(Value, &mut McpServer<CTX>, &mut CTX) -> Result<Value, McpError> + Send + Sync + 'static,
     {
         Self {
-            handle_fn: Box::new(f),
+            handle_fn: Arc::new(f),
         }
     }
 
-    fn handle(&self, params: Value, server: &mut McpServer<CTX>) -> Result<Value, McpError> {
-        (self.handle_fn)(params, server)
+    fn handle(&self, params: Value, server: &mut McpServer<CTX>, context: &mut CTX) -> Result<Value, McpError> {
+        (self.handle_fn)(params, server, context)
+    }
+}
+
+impl<CTX> Clone for HandlerFn<CTX> {
+    fn clone(&self) -> Self {
+        Self {
+            handle_fn: Arc::clone(&self.handle_fn),
+        }
     }
 }
 
