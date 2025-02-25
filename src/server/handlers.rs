@@ -2,7 +2,7 @@ use crate::server::McpServer;
 use crate::types::{
     CallTool, CallToolRequest, CallToolResponse, Implementation, Initialize, InitializeRequest,
     InitializeResponse, ListTools, ListToolsRequest, ListToolsResponse, McpCommand, McpError,
-    ServerCapabilities, Shutdown, ShutdownRequest, ShutdownResponse, ToolDefinition,
+    ServerCapabilities, Shutdown, ShutdownRequest, ShutdownResponse,
     LATEST_PROTOCOL_VERSION,
 };
 use serde_json::json;
@@ -35,8 +35,8 @@ impl DefaultInitializeHandler {
 impl<CTX: Send + Sync + 'static> CommandHandler<Initialize, CTX> for DefaultInitializeHandler {
     fn handle(
         &self,
-        request: InitializeRequest,
-        server: &mut McpServer<CTX>,
+        _request: InitializeRequest,
+        _server: &mut McpServer<CTX>,
         _context: &mut CTX,  // Unused but required by trait
     ) -> Result<InitializeResponse, McpError> {
         Ok(InitializeResponse {
@@ -69,7 +69,7 @@ pub struct DefaultListToolsHandler;
 impl<CTX: Send + Sync + 'static> CommandHandler<ListTools, CTX> for DefaultListToolsHandler {
     fn handle(
         &self,
-        request: ListToolsRequest,
+        _request: ListToolsRequest,
         server: &mut McpServer<CTX>,
         _context: &mut CTX,  // Unused but required by trait
     ) -> Result<ListToolsResponse, McpError> {

@@ -8,9 +8,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d03fc512-00ca-4153-ae0a-3cec402a9e58" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/examples/macho-mcp/src/basic_tool.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/macho-mcp/src/longrunning_tool.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/macho-mcp/src/resource_tool.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/macho-mcp/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/macho-mcp/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/handlers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/handlers.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/server.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/server.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/integration_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration_test.rs" afterDir="false" />
     </list>
@@ -33,9 +38,9 @@
   <component name="MacroExpansionManager">
     <option name="directoryName" value="JC12CSpj" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="2tMXuYbeUJk7hvYJyVT18h3wcB8" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -52,6 +57,7 @@
     "Cargo.Test integration_test::tests.executor": "Run",
     "Cargo.Test integration_tests.executor": "Run",
     "Cargo.Test integration_tests::test_macho_integration.executor": "Run",
+    "Cargo.Test test_elbow_drop.executor": "Run",
     "Cargo.Test test_macho_integration.executor": "Run",
     "Cargo.Test tests::client_tests::tests::test_fetch_compatibility.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -73,7 +79,7 @@
       <recent name="$PROJECT_DIR$/src/client" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test test_macho_integration">
+  <component name="RunManager" selected="Cargo.Test integration_tests">
     <configuration name="Run macho-mcp" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="buildProfileId" value="dev" />
       <option name="command" value="run --package sovran-mcp --example macho-mcp" />
@@ -127,25 +133,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test integration_test::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --test integration_test tests" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Test integration_tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package sovran-mcp --test integration_test integration_tests" />
+      <option name="buildProfileId" value="test" />
+      <option name="command" value="test --package sovran-mcp --test integration_test" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -202,17 +192,16 @@
       <item itemvalue="Cargo.Test sovran-mcp" />
       <item itemvalue="Cargo.Test client_tests::tests" />
       <item itemvalue="Cargo.Run macho-mcp" />
-      <item itemvalue="Cargo.Test integration_test::tests" />
       <item itemvalue="Cargo.Test integration_tests" />
       <item itemvalue="Cargo.Test test_macho_integration" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test integration_tests" />
+        <item itemvalue="Cargo.Test integration_tests" />
         <item itemvalue="Cargo.Test test_macho_integration" />
         <item itemvalue="Cargo.Run macho-mcp" />
         <item itemvalue="Cargo.Test client_tests::tests" />
-        <item itemvalue="Cargo.Test integration_test::tests" />
-        <item itemvalue="Cargo.Test integration_tests" />
       </list>
     </recent_temporary>
   </component>
@@ -227,7 +216,9 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1740163140246</updated>
-      <workItem from="1740163141277" duration="21408000" />
+      <workItem from="1740163141277" duration="32985000" />
+      <workItem from="1740424057055" duration="1536000" />
+      <workItem from="1740510653485" duration="8415000" />
     </task>
     <servers />
   </component>
@@ -246,6 +237,11 @@
           <url>file://$PROJECT_DIR$/src/tests/client_tests.rs</url>
           <line>29</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/types/messaging.rs</url>
+          <line>321</line>
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

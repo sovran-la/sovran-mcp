@@ -5,22 +5,88 @@ use serde::{de::DeserializeOwned, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use sovran_typemap::{StoreError, TypeStore};
 use tracing::{debug, warn};
+
+impl From<StoreError> for McpError {
+    fn from(err: StoreError) -> Self {
+        match err {
+            StoreError::KeyNotFound(key) => McpError::Other(format!("Resource not found, key: {}", key).into()),
+            StoreError::TypeMismatch => McpError::Other("Resource type mismatch".into()),
+            StoreError::LockError => McpError::Other("Failed to acquire lock on resource store".into()),
+        }
+    }
+}
 
 /// Core tool interface
 
 pub struct McpToolServer {
     transport: Arc<Mutex<Box<dyn ServerTransport>>>,
+    resources: TypeStore<String>,
 }
 
 impl McpToolServer {
-    fn new(transport: Arc<Mutex<Box<dyn ServerTransport>>>) -> Self {
-        Self { transport }
+    pub(crate) fn new(
+        transport: Arc<Mutex<Box<dyn ServerTransport>>>,
+        resources: TypeStore<String>,
+    ) -> Self {
+        Self { transport, resources }
     }
 
     pub fn send_notification(&self, notification: JsonRpcNotification) -> Result<(), McpError> {
         let mut transport = self.transport.lock().unwrap();
         transport.write_message(&JsonRpcMessage::Notification(notification))
+    }
+
+    pub fn send_progress(
+        &self,
+        token: impl Into<String>,
+        progress: f64,
+        total: Option<f64>,
+    ) -> Result<(), McpError> {
+        self.send_notification(JsonRpcNotification::progress(
+            token.into(),
+            progress,
+            total,
+        ))
+    }
+
+    pub fn get_resource<T: McpResource + 'static>(&self, uri: &str) -> Result<T, McpError>
+    where T: Clone
+    {
+        // Use TypeStore's get method which returns a clone
+        self.resources.get(&uri.to_string())
+            .map_err(|e| McpError::Other(format!("Resource error: {}", e)))
+    }
+
+    pub fn set_resource<T: McpResource + 'static>(&self, uri: String, resource: T) -> Result<(), McpError> {
+        // Store the resource
+        self.resources.set(uri.clone(), resource)
+            .map_err(|e| McpError::Other(format!("Failed to store resource: {}", e)))?;
+
+        // Send notification about the new/updated resource
+        self.send_notification(JsonRpcNotification::resource_updated(&uri))?;
+
+        Ok(())
+    }
+
+    pub fn list_resources(&self) -> Vec<String> {
+        self.resources.keys().unwrap_or_default()
+    }
+
+    pub fn with_resource<T: McpResource + 'static, R, F: FnOnce(&T) -> R>(&self, uri: &str, f: F) -> Result<R, McpError> {
+        self.resources.with(&uri.to_string(), f)
+            .map_err(|e| McpError::Other(format!("Resource error: {}", e)))
+    }
+
+    pub fn with_resource_mut<T: McpResource + 'static, F: FnOnce(&mut T)>(&self, uri: &str, f: F) -> Result<(), McpError> {
+        self.resources.with_mut(&uri.to_string(), f)
+            .map_err(|e| McpError::Other(format!("Resource error: {}", e)))?;
+
+        // Send notification that resource was modified
+        self.send_notification(JsonRpcNotification::resource_updated(uri))?;
+
+        Ok(())
     }
 }
 
@@ -36,6 +102,13 @@ pub trait McpTool<CTX>: Send + Sync {
     ) -> Result<CallToolResponse, McpError>;
 }
 
+pub trait McpResource: Send + Sync {
+    fn uri(&self) -> String;
+    fn name(&self) -> String;
+    fn mime_type(&self) -> String;
+    fn content(&self) -> ResourceContent;
+}
+
 /// The MCP Server implementation
 pub struct McpServer<CTX> {
     name: String,
@@ -43,6 +116,7 @@ pub struct McpServer<CTX> {
     transport: Arc<Mutex<Box<dyn ServerTransport>>>,
     tools: HashMap<String, Box<dyn McpTool<CTX>>>,
     handlers: HashMap<&'static str, HandlerFn<CTX>>,
+    resources: TypeStore<String>,
 }
 
 impl<CTX: Send + Sync + 'static> McpServer<CTX> {
@@ -57,13 +131,16 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
     ) -> Self {
         let name = name.into();
         let version = version.into();
+        let transport = Arc::new(Mutex::new(Box::new(transport) as Box<dyn ServerTransport>));
+        let resources = TypeStore::new();
 
         let mut server = Self {
             name: name.clone(),
             version: version.clone(),
-            transport: Arc::new(Mutex::new(Box::new(transport))),
+            transport,
             tools: HashMap::new(),
             handlers: HashMap::new(),
+            resources,
         };
 
         // Set up default handlers
@@ -97,10 +174,13 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
             .get(name)
             .ok_or_else(|| McpError::UnknownTool(name.to_string()))?;
 
-        // Create tool server with cloned Arc to transport
-        let tool_server = McpToolServer::new(Arc::clone(&self.transport));
+        // Create tool server with the transport and resources
+        // No need to clone the Arc for resources anymore since TypeStore is already thread-safe
+        let tool_server = McpToolServer::new(
+            Arc::clone(&self.transport),
+            self.resources.clone()  // TypeStore implements Clone
+        );
 
-        // Execute with tool server
         tool.execute(args, context, &tool_server)
     }
 
@@ -125,6 +205,20 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
         }
 
         self.tools.insert(name, Box::new(tool));
+        Ok(())
+    }
+
+    pub fn add_resource<R>(&mut self, resource: R) -> Result<(), McpError>
+    where
+        R: McpResource + 'static,
+    {
+        let uri = resource.uri().to_string();
+        if self.resources.contains_key(&uri)? {
+            return Err(McpError::Other(format!("Resource already exists: {}", uri)));
+        }
+
+        self.resources.set(uri.clone(), resource)?;
+
         Ok(())
     }
 

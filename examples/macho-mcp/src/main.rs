@@ -1,25 +1,40 @@
-/*use sovran_mcp::{
-    McpTool,
-    McpError,
-    McpServer,
-    types::{ToolResponseContent, CallToolResponse},
-    messaging::JsonRpcNotification,
-    messaging::LogLevel
-};*/
-use serde_json::{json, Value};
-use sovran_mcp::server::{McpServer, McpTool};
-use sovran_mcp::server::server::McpToolServer;
-use sovran_mcp::types::{
-    CallToolResponse, JsonRpcNotification, LogLevel, McpError, ToolResponseContent,
-};
+
+mod basic_tool;
+mod longrunning_tool;
+mod resource_tool;
+
+use crate::basic_tool::ElbowDropTool;
+use sovran_mcp::server::McpServer;
+use sovran_mcp::types::McpError;
+use crate::longrunning_tool::PrepareToRumbleTool;
+use crate::resource_tool::{ChampionshipBelt, ChampionshipManagerTool};
 
 struct MachoContext {
     catchphrases: Vec<String>,
     elbow_drops: usize,
+    belts: Vec<ChampionshipBelt>,
 }
 
 impl Default for MachoContext {
     fn default() -> Self {
+        let mut belts = Vec::new();
+        belts.push(
+            ChampionshipBelt {
+                name: "WWF World Heavyweight Championship".into(),
+                weight_class: "Heavyweight".into(),
+                defense_count: 371,
+                signature_move: "Flying Elbow Drop".into(),
+            }
+        );
+        belts.push(
+            ChampionshipBelt {
+                name: "Intercontinental Championship".into(),
+                weight_class: "Heavyweight".into(),
+                defense_count: 183,
+                signature_move: "Savage Slam".into(),
+            }
+        );
+
         Self {
             catchphrases: vec![
                 "OHHH YEAHHH!".into(),
@@ -29,81 +44,8 @@ impl Default for MachoContext {
                 "ON BALANCE, OFF BALANCE, DOESN'T MATTER!".into(),
             ],
             elbow_drops: 0,
+            belts,
         }
-    }
-}
-
-#[derive(Debug, Clone)]
-struct ElbowDropTool;
-
-impl McpTool<MachoContext> for ElbowDropTool {
-    fn name(&self) -> &str {
-        "elbow-drop"
-    }
-
-    fn description(&self) -> &str {
-        "The cream of the crop! Nothing means nothing! YEAH!"
-    }
-
-    fn schema(&self) -> Value {
-        json!({
-            "type": "object",
-            "properties": {
-                "target": {
-                    "type": "string",
-                    "description": "Who's getting dropped, brother?"
-                },
-                "intensity": {
-                    "type": "integer",
-                    "description": "How many times do ya wanna snap into it? (1-10)",
-                    "minimum": 1,
-                    "maximum": 10,
-                    "default": 5
-                }
-            },
-            "required": ["target"]
-        })
-    }
-
-    fn execute(
-        &self,
-        args: Value,
-        context: &mut MachoContext,
-        server: &McpToolServer,
-    ) -> Result<CallToolResponse, McpError> {
-        let target = args.get("target").and_then(|v| v.as_str()).ok_or_else(|| {
-            McpError::InvalidArguments("WHO AM I SUPPOSED TO DROP BROTHER?!".into())
-        })?;
-
-        let intensity = args.get("intensity").and_then(|v| v.as_u64()).unwrap_or(5);
-
-        context.elbow_drops += 1;
-        let catchphrase = &context.catchphrases[context.elbow_drops % context.catchphrases.len()];
-
-        // Send a log message about this epic elbow drop!
-        server.send_notification(JsonRpcNotification::log_message(
-            LogLevel::Info,
-            json!({
-                "action": "elbow_drop",
-                "target": target,
-                "intensity": intensity,
-                "catchphrase": catchphrase
-            }),
-            Some("macho-mcp".to_string()),
-        ))?;
-
-        Ok(CallToolResponse {
-            content: vec![ToolResponseContent::Text {
-                text: format!(
-                    "{} {} just got DROPPED from {} feet! DIG IT!",
-                    catchphrase,
-                    target,
-                    intensity * 10
-                ),
-            }],
-            is_error: None,
-            meta: None,
-        })
     }
 }
 
@@ -113,8 +55,14 @@ fn main() -> Result<(), McpError> {
     let context = MachoContext::default();
     let mut server = McpServer::new("macho-mcp", "1.0.0");
 
-    // Add our sweet elbow drop tool
     server.add_tool(ElbowDropTool)?;
+    server.add_tool(PrepareToRumbleTool)?;
+    server.add_tool(ChampionshipManagerTool)?;
+
+    // Add championship belt resources
+    for belt in context.belts.iter() {
+        server.add_resource(belt.clone())?
+    }
 
     // Start the server - this handles all the stdin/stdout stuff for us!
     server.start(context)
