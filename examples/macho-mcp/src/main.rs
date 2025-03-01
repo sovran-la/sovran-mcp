@@ -61,7 +61,7 @@ fn main() -> Result<(), McpError> {
 
     // Add championship belt resources
     for belt in context.belts.iter() {
-        server.add_resource(belt.clone())?
+        server.add_resource(Box::new(belt.clone()))?
     }
 
     // Start the server - this handles all the stdin/stdout stuff for us!

@@ -58,12 +58,12 @@ pub enum McpError {
     // Server errors
     #[error("Unknown tool: {0}")]
     UnknownTool(String),
-
     #[error("Duplicate tool: {0}")]
     DuplicateTool(String),
-
     #[error("Invalid arguments: {0}")]
     InvalidArguments(String),
+    #[error("Invalid resource: {0}")]
+    InvalidResource(String),
 
     // Other Errors
     #[error("{0}")]

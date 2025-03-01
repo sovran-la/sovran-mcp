@@ -1,3 +1,4 @@
+use std::any::Any;
 use crate::server::handlers::*;
 use crate::server::transport::{ServerTransport, StdioServerTransport};
 use crate::types::*;
@@ -51,15 +52,15 @@ impl McpToolServer {
         ))
     }
 
-    pub fn get_resource<T: McpResource + 'static>(&self, uri: &str) -> Result<T, McpError>
-    where T: Clone
-    {
-        // Use TypeStore's get method which returns a clone
-        self.resources.get(&uri.to_string())
-            .map_err(|e| McpError::Other(format!("Resource error: {}", e)))
+    pub fn get_resource<T: McpResource + Clone + 'static>(
+        &self,
+        uri: String
+    ) -> Result<Box<T>, McpError> {
+        self.resources.get(&uri)
+            .map_err(|e| McpError::InvalidResource(uri))
     }
 
-    pub fn set_resource<T: McpResource + 'static>(&self, uri: String, resource: T) -> Result<(), McpError> {
+    pub fn set_resource<T: McpResource + 'static>(&self, uri: String, resource: Box<T>) -> Result<(), McpError> {
         // Store the resource
         self.resources.set(uri.clone(), resource)
             .map_err(|e| McpError::Other(format!("Failed to store resource: {}", e)))?;
@@ -105,8 +106,18 @@ pub trait McpTool<CTX>: Send + Sync {
 pub trait McpResource: Send + Sync {
     fn uri(&self) -> String;
     fn name(&self) -> String;
+    fn description(&self) -> String;
     fn mime_type(&self) -> String;
-    fn content(&self) -> ResourceContent;
+    fn content(&self) -> Vec<ResourceContent>;
+
+    fn as_resource(&self) -> Resource {
+        Resource {
+            uri: self.uri().parse().unwrap(),  // assuming you have a uri field
+            name: self.name(),
+            description: Some(self.description()),
+            mime_type: Some(self.mime_type()),
+        }
+    }
 }
 
 /// The MCP Server implementation
@@ -148,6 +159,7 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
         server.set_handler::<Shutdown, _>(DefaultShutdownHandler);
         server.set_handler::<ListTools, _>(DefaultListToolsHandler);
         server.set_handler::<CallTool, _>(DefaultCallToolHandler);
+        server.set_handler::<ListResources, _>(DefaultListResourcesHandler);
 
         server
     }
@@ -208,18 +220,45 @@ impl<CTX: Send + Sync + 'static> McpServer<CTX> {
         Ok(())
     }
 
-    pub fn add_resource<R>(&mut self, resource: R) -> Result<(), McpError>
-    where
-        R: McpResource + 'static,
-    {
+    pub fn add_resource<T: McpResource + Clone + 'static>(
+        &mut self,
+        resource: Box<T>
+    ) -> Result<(), McpError> {
         let uri = resource.uri().to_string();
         if self.resources.contains_key(&uri)? {
             return Err(McpError::Other(format!("Resource already exists: {}", uri)));
         }
 
         self.resources.set(uri.clone(), resource)?;
-
         Ok(())
+    }
+
+    pub fn get_resource<T: McpResource + Clone + 'static>(
+        &self,
+        uri: String
+    ) -> Result<Box<T>, McpError> {
+        self.resources.get(&uri)
+            .map_err(|e| McpError::InvalidResource(uri))
+    }
+
+    pub(crate) fn get_resource_content(&self, uri: String) -> Result<Vec<ResourceContent>, McpError> {
+        self.resources
+            .with::<Box<dyn McpResource>, _, _>(&uri, |r| r.content())
+            .map_err(|e| McpError::InvalidResource(uri))
+    }
+
+    pub fn list_resources(&self) -> Vec<Resource> {
+        let mut resources = Vec::new();
+
+        if let Ok(keys) = self.resources.keys() {
+            for key in keys {
+                if let Ok(resource) = self.resources.with::<Box<dyn McpResource>, _, _>(&key, |r| r.as_resource()) {
+                    resources.push(resource);
+                }
+            }
+        }
+
+        resources
     }
 
     pub fn start(&mut self, mut context: CTX) -> ! {

@@ -1,10 +1,10 @@
+use crate::MachoContext;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use url::Url;
-use sovran_mcp::{McpError, McpTool};
 use sovran_mcp::server::server::{McpResource, McpToolServer};
-use sovran_mcp::types::{CallToolResponse, ResourceContent, TextResourceContents, ToolResponseContent};
-use crate::MachoContext;
+use sovran_mcp::types::{CallToolResponse, Resource, ResourceContent, TextResourceContents, ToolResponseContent};
+use sovran_mcp::{McpError, McpTool};
+use url::Url;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChampionshipBelt {
@@ -14,10 +14,13 @@ pub struct ChampionshipBelt {
     pub signature_move: String,
 }
 
-
 impl McpResource for ChampionshipBelt {
     fn uri(&self) -> String {
         format!("macho://belts/{}", self.name.to_lowercase().replace(' ', "-"))
+    }
+
+    fn description(&self) -> String {
+        format!("The {} championship belt", self.name)
     }
 
     fn name(&self) -> String {
@@ -28,12 +31,13 @@ impl McpResource for ChampionshipBelt {
         "application/json".into()
     }
 
-    fn content(&self) -> ResourceContent {
-        ResourceContent::Text(TextResourceContents {
+    fn content(&self) -> Vec<ResourceContent> {
+        let content = ResourceContent::Text(TextResourceContents {
             uri: Url::parse(&*self.uri()).unwrap(),
             text: serde_json::to_string_pretty(&self).unwrap(),
             mime_type: Some(self.mime_type().to_string()),
-        })
+        });
+        vec![content]
     }
 }
 
@@ -122,7 +126,7 @@ impl McpTool<MachoContext> for ChampionshipManagerTool {
                 let uri = format!("macho://belts/{}", belt_id);
 
                 // Get the belt
-                let mut belt = tool_server.get_resource::<ChampionshipBelt>(&uri)?;
+                let mut belt: Box<ChampionshipBelt> = tool_server.get_resource(uri.clone())?;
 
                 // Update and save
                 belt.defense_count += 1;
@@ -132,7 +136,7 @@ impl McpTool<MachoContext> for ChampionshipManagerTool {
                 let belt_name = belt.name.clone();
 
                 // Save the updated belt
-                tool_server.set_resource(uri, belt)?;
+                tool_server.set_resource(uri.clone(), belt)?;
 
                 Ok(CallToolResponse {
                     content: vec![ToolResponseContent::Text {
@@ -172,7 +176,7 @@ impl McpTool<MachoContext> for ChampionshipManagerTool {
 
                 // Use set_resource to add the new belt
                 let uri = belt.uri().to_string();
-                tool_server.set_resource(uri, belt)?;
+                tool_server.set_resource(uri, Box::new(belt))?;
 
                 Ok(CallToolResponse {
                     content: vec![ToolResponseContent::Text {

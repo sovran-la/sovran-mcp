@@ -1,10 +1,5 @@
 use crate::server::McpServer;
-use crate::types::{
-    CallTool, CallToolRequest, CallToolResponse, Implementation, Initialize, InitializeRequest,
-    InitializeResponse, ListTools, ListToolsRequest, ListToolsResponse, McpCommand, McpError,
-    ServerCapabilities, Shutdown, ShutdownRequest, ShutdownResponse,
-    LATEST_PROTOCOL_VERSION,
-};
+use crate::types::*;
 use serde_json::json;
 
 /// Command handler trait
@@ -94,5 +89,39 @@ impl<CTX: Send + Sync + 'static> CommandHandler<CallTool, CTX> for DefaultCallTo
             request.arguments.unwrap_or(json!({})),
             context
         )
+    }
+}
+
+pub struct DefaultListResourcesHandler;
+impl<CTX: Send + Sync + 'static> CommandHandler<ListResources, CTX> for DefaultListResourcesHandler {
+    fn handle(
+        &self,
+        _request: ListResourcesRequest,
+        server: &mut McpServer<CTX>,
+        _context: &mut CTX
+    ) -> Result<ListResourcesResponse, McpError> {
+        let resources = server.list_resources();
+        Ok(ListResourcesResponse {
+            resources,
+            next_cursor: None,
+            meta: None,
+        })
+    }
+}
+
+pub struct DefaultReadResourceHandler;
+impl<CTX: Send + Sync + 'static> CommandHandler<ReadResource, CTX> for DefaultReadResourceHandler {
+    fn handle(
+        &self,
+        request: ReadResourceRequest,
+        server: &mut McpServer<CTX>,
+        _context: &mut CTX
+    ) -> Result<ReadResourceResponse, McpError> {
+        let resource = server.get_resource_content(request.uri.to_string())?;
+        Ok(ReadResourceResponse {
+            contents: resource,
+            meta: None,
+        })
+
     }
 }
